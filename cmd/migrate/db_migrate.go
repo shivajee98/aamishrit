@@ -9,7 +9,7 @@ import (
 	model "github.com/shivajee98/aamishrit/internal/models"
 )
 
-func main() {
+func MigrateDB() {
 	fmt.Println("Starting migration...")
 
 	config.LoadEnv()
@@ -19,7 +19,7 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	err = dbConn.AutoMigrate(&model.Product{})
+	err = dbConn.AutoMigrate(&model.Product{}, &model.User{}, &model.Address{})
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}

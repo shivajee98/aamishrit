@@ -1,9 +1,7 @@
 package db
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/shivajee98/aamishrit/internal/config"
 	"github.com/shivajee98/aamishrit/pkg/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,11 +9,9 @@ import (
 
 func Connect() (*gorm.DB, error) {
 
-	fmt.Println("Connecting to Database ....")
+	cfg := config.LoadEnv()
 
-	db_uri := os.Getenv("SUPABASE_URL")
-
-	db, err := gorm.Open(postgres.Open(db_uri))
+	db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{})
 
 	utils.CheckError("Error connecting to database", err)
 
