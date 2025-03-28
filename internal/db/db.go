@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/shivajee98/aamishrit/pkg/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,7 +18,6 @@ func Connect() (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(db_uri))
 
 	utils.CheckError("Error connecting to database", err)
-
 
 	return db, nil
 }
