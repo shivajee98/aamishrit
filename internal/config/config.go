@@ -12,7 +12,8 @@ type Config struct {
 }
 
 func LoadEnv() *Config {
-	if err := godotenv.Load("internal/config/.env"); err != nil {
+
+	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: No .env file found, using system environment variables")
 	}
 

@@ -1,4 +1,4 @@
-package migrate
+package main
 
 import (
 	"fmt"
@@ -6,10 +6,10 @@ import (
 
 	"github.com/shivajee98/aamishrit/internal/config"
 	"github.com/shivajee98/aamishrit/internal/db"
-	model "github.com/shivajee98/aamishrit/internal/models"
+	"github.com/shivajee98/aamishrit/internal/model"
 )
 
-func MigrateDB() {
+func main() {
 	fmt.Println("Starting migration...")
 
 	config.LoadEnv()
@@ -19,7 +19,7 @@ func MigrateDB() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	err = dbConn.AutoMigrate(&model.Product{}, &model.User{}, &model.Address{})
+	err = dbConn.AutoMigrate(&model.Product{}, &model.User{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.Payment{}, &model.Review{})
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}
