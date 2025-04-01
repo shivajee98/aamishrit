@@ -7,12 +7,14 @@ import (
 	"github.com/shivajee98/aamishrit/internal/middleware"
 )
 
-func Setup(app *fiber.App, jwkClient *jwks.Client, jwkStore *middleware.JWKStore, handler *handlers.Handler) {
+func Setup(app *fiber.App, jwksClient *jwks.Client, jwkStore *middleware.JWKStore, handler *handlers.Handler) {
 	// public routes
-	public := app.Group("/public")
-	public.Get("public")
+	// public := app.Group("/public")
+	// public.Get("public")
 
 	// protected routes
-	protected := app.Group("/protected")
-	protected.Get("/pro")
+	app.Get("/protected", middleware.ClerkAuthMiddleware(jwksClient, jwkStore), func(c *fiber.Ctx) error {
+		userID := c.Locals("user_id")
+		return c.JSON(fiber.Map{"access": "granted", "user_id": userID})
+	})
 }

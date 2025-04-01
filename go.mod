@@ -48,6 +48,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/rs/cors v1.11.1
 	github.com/spf13/viper v1.20.1
 	golang.org/x/text v0.23.0 // indirect
 	gorm.io/driver/postgres v1.5.11
