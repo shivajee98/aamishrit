@@ -7,7 +7,7 @@ type Product struct {
 	Name        string   `json:"name"`
 	Price       float64  `json:"price"`
 	Description string   `json:"description"`
-	ImageUrl    string   `json:"image"` // Cloudinary URL for the product image
+	ImageUrl    string   `json:"image"`
 	Stock       int      `gorm:"not null" json:"stock"`
 	Reviews     []Review `gorm:"foreignKey:ProductID;constraint:OnDelete:CASCADE;"`
 }
