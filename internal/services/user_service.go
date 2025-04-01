@@ -1,7 +1,6 @@
 package services
 
 import (
-	"github.com/clerk/clerk-sdk-go/v2/user"
 	"github.com/shivajee98/aamishrit/internal/model"
 	"github.com/shivajee98/aamishrit/internal/repository"
 )
@@ -23,7 +22,6 @@ func InitUserService(userRepo repository.UserRepository) UserService {
 
 // GetUser implements UserService.
 func (u *userService) GetUser(phone string) (*model.User, error) {
-	user.
 	panic("unimplemented")
 }
 
