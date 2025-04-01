@@ -17,11 +17,11 @@ import (
 func main() {
 	app := fiber.New()
 
-	// Connect to DB
-	dbConn, err := db.Connect()
-
 	// Load Configs
-	cfg := config.LoadConfig()
+	cfg := config.LoadEnv()
+
+	// Connect to DB
+	dbConn, err := db.Connect(cfg.DatabaseURL)
 
 	// Initialising Clerk and Storing JWK
 

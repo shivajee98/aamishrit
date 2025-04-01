@@ -12,9 +12,9 @@ import (
 func main() {
 	fmt.Println("Starting migration...")
 
-	config.LoadEnv()
+	cfg := config.LoadEnv()
 
-	dbConn, err := db.Connect()
+	dbConn, err := db.Connect(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
