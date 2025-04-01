@@ -1,79 +1,98 @@
 package middleware
 
 import (
-	"net/http"
+	"context"
 	"strings"
 	"sync"
 
+	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/clerk/clerk-sdk-go/v2/jwks"
 	"github.com/clerk/clerk-sdk-go/v2/jwt"
 	"github.com/clerk/clerk-sdk-go/v2/user"
 	"github.com/gofiber/fiber/v2"
 )
 
-// JWKCache is a simple in-memory store for JSON Web Keys
-type JWKCache struct {
+// JWKStore is an in-memory cache for JSON Web Keys
+type JWKStore struct {
 	mu  sync.RWMutex
-	key *jwks.JSONWebKey
+	jwk *clerk.JSONWebKey
 }
 
-var jwkCache = &JWKCache{}
-
-func (c *JWKCache) Get() *jwks.JSONWebKey {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	return c.key
+// GetJWK retrieves the cached JWK
+func (s *JWKStore) GetJWK() *clerk.JSONWebKey {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.jwk
 }
 
-func (c *JWKCache) Set(key *jwks.JSONWebKey) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.key = key
+// SetJWK caches the JWK for later use
+func (s *JWKStore) SetJWK(jwk *clerk.JSONWebKey) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.jwk = jwk
 }
 
-func ClerkAuthMiddleware(c *fiber.Ctx) error {
-	tokenString := strings.TrimPrefix(c.Get("Authorization"), "Bearer ")
-	if tokenString == "" {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "Missing token"})
-	}
+func NewJWKStore() *JWKStore {
+	return &JWKStore{}
+}
 
-	// Try to use cached JWK
-	jwk := jwkCache.Get()
-	if jwk == nil {
-		// Decode the token to extract Key ID
-		unsafeClaims, err := jwt.Decode(c.Context(), &jwt.DecodeParams{
-			Token: tokenString,
-		})
-		if err != nil {
-			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
+// ClerkAuthMiddleware is the authentication middleware for Fiber
+func ClerkAuthMiddleware(jwksClient *jwks.Client, store *JWKStore) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// Get the Authorization header
+		authHeader := c.Get("Authorization")
+		if authHeader == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing Authorization header"})
 		}
 
-		// Fetch the JSON Web Key from Clerk
-		jwk, err = jwt.GetJSONWebKey(c.Context(), &jwt.GetJSONWebKeyParams{
-			KeyID: unsafeClaims.KeyID,
-		})
-		if err != nil {
-			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "Failed to fetch JWK"})
+		// Extract the Bearer token
+		sessionToken := strings.TrimPrefix(authHeader, "Bearer ")
+		if sessionToken == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token format"})
 		}
 
-		// Cache the JWK
-		jwkCache.Set(jwk)
-	}
+		// Try to retrieve cached JWK
+		jwk := store.GetJWK()
+		if jwk == nil {
+			// Decode token to get Key ID
+			unsafeClaims, err := jwt.Decode(context.Background(), &jwt.DecodeParams{
+				Token: sessionToken,
+			})
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Failed to decode token"})
+			}
 
-	// Verify JWT using the cached JWK
-	claims, err := jwt.Verify(c.Context(), &jwt.VerifyParams{
-		Token: tokenString,
-		JWK:   jwk,
-	})
-	if err != nil {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorised"})
-	}
+			// Fetch the JSON Web Key
+			jwk, err = jwt.GetJSONWebKey(context.Background(), &jwt.GetJSONWebKeyParams{
+				KeyID:      unsafeClaims.KeyID,
+				JWKSClient: jwksClient,
+			})
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Failed to fetch JWK"})
+			}
 
-	// Fetch user details
-	_, err = user.Get(c.Context(), claims.Subject)
-	if err != nil {
-		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "User Not Found"})
-	}
+			// Store the JWK for future requests
+			store.SetJWK(jwk)
+		}
 
-	return c.Next()
+		// Verify the session
+		claims, err := jwt.Verify(context.Background(), &jwt.VerifyParams{
+			Token: sessionToken,
+			JWK:   jwk,
+		})
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
+		}
+
+		// Fetch user details
+		usr, err := user.Get(context.Background(), claims.Subject)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User not found"})
+		}
+
+		// Attach user ID to the context for later use
+		c.Locals("user_id", usr.ID)
+
+		return c.Next()
+	}
 }
