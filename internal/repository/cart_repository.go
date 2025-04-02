@@ -8,7 +8,7 @@ import (
 type CartRepository interface {
 	AddToCart(cart *model.Cart) error
 	GetCartByUserID(userID uint) ([]model.Cart, error)
-	UpdateCardItem(cart *model.Cart) error
+	UpdateCartItem(cart *model.Cart) error
 	RemoveFromCart(cartID uint) error
 	ClearCart(userID uint) error
 }
@@ -31,7 +31,7 @@ func (r *cartRepository) GetCartByUserID(userID uint) ([]model.Cart, error) {
 	return cart, err
 }
 
-func (r *cartRepository) UpdateCardItem(cart *model.Cart) error {
+func (r *cartRepository) UpdateCartItem(cart *model.Cart) error {
 	return r.db.Save(cart).Error
 }
 
