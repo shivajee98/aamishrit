@@ -10,8 +10,8 @@ import (
 type CartService interface {
 	AddToCart(cart *model.Cart) error
 	GetCartByUserID(userID uint) ([]model.Cart, error)
-	UpdateCartItem(cart *model.Cart) error
-	RemoveFromCart(cardID uint) error
+	UpdateCartItem(cartID uint, cart *model.Cart) error
+	RemoveFromCart(cartID uint) error
 	ClearCart(userID uint) error
 }
 
@@ -37,16 +37,16 @@ func (s *cartService) GetCartByUserID(userID uint) ([]model.Cart, error) {
 }
 
 // Update Cart Item
-func (s *cartService) UpdateCartItem(cart *model.Cart) error {
-	if cart.ID == 0 {
-		return errors.New("invalid cart id")
+func (s *cartService) UpdateCartItem(cartID uint, cart *model.Cart) error {
+	if cartID == 0 {
+		return errors.New("invalid cart ID")
 	}
-	return s.cartRepo.UpdateCardItem(cart)
+	return s.cartRepo.UpdateCartItem(cartID, cart)
 }
 
 // Remove from Cart
-func (s *cartService) RemoveFromCart(cardID uint) error {
-	return s.cartRepo.RemoveFromCart(cardID)
+func (s *cartService) RemoveFromCart(cartID uint) error {
+	return s.cartRepo.RemoveFromCart(cartID)
 }
 
 // Clear Cart
