@@ -23,11 +23,17 @@ func main() {
 	dbConn, err := db.Connect(cfg.DatabaseURL)
 
 	// setup
+	// product
 	productRepo := repository.InitProductRepository(dbConn)
 	productService := services.InitProductService(productRepo)
 	productHandler := handlers.InitProductHandler(productService)
 
-	routes.Setup(app, productHandler)
+	// cart
+	cartRepo := repository.InitCartRepository(dbConn)
+	cartService := services.InitCartService(cartRepo)
+	cartHandler := handlers.InitCartHandler(cartService)
+
+	routes.Setup(app, productHandler, cartHandler)
 
 	utils.CheckError("Database Connection Failed!", err)
 

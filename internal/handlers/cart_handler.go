@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/shivajee98/aamishrit/internal/model"
-	"github.com/shivajee98/aamishrit/internal/repository"
 	"github.com/shivajee98/aamishrit/internal/services"
 )
 
