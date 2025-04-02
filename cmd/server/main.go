@@ -33,7 +33,12 @@ func main() {
 	cartService := services.InitCartService(cartRepo)
 	cartHandler := handlers.InitCartHandler(cartService)
 
-	routes.Setup(app, productHandler, cartHandler)
+	// Review
+	reviewRepo := repository.NewReviewRepository(dbConn)
+	reviewService := services.NewReviewService(reviewRepo)
+	reviewHandler := handlers.NewReviewHandler(reviewService)
+
+	routes.Setup(app, productHandler, cartHandler, reviewHandler)
 
 	utils.CheckError("Database Connection Failed!", err)
 
