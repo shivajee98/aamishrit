@@ -5,7 +5,7 @@ import (
 	"github.com/shivajee98/aamishrit/internal/handlers"
 )
 
-func Setup(app *fiber.App, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler) {
+func Setup(app *fiber.App, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler, orderHandler *handlers.OrderHandler) {
 	api := app.Group("/api")
 
 	// Product Routes
@@ -28,5 +28,14 @@ func Setup(app *fiber.App, productHandler *handlers.ProductHandler, cartHandler 
 	reviewRoutes.Get("/:product_id", reviewHandler.GetReviews)
 	reviewRoutes.Put("/:review_id", reviewHandler.UpdateReview)
 	reviewRoutes.Delete("/:review_id", reviewHandler.DeleteReview)
+
+	// Order Routes
+	orderRoutes := app.Group("/orders")
+
+	orderRoutes.Post("/", orderHandler.PlaceOrder)
+	orderRoutes.Get("/:order_id", orderHandler.GetOrder)
+	orderRoutes.Get("/user/:user_id", orderHandler.GetUserOrders)
+	orderRoutes.Put("/:order_id", orderHandler.UpdateOrderStatus)
+	orderRoutes.Delete("/:order_id", orderHandler.CancelOrder)
 
 }
