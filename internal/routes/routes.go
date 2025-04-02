@@ -1,20 +1,17 @@
 package routes
 
 import (
-	"github.com/clerk/clerk-sdk-go/v2/jwks"
 	"github.com/gofiber/fiber/v2"
 	"github.com/shivajee98/aamishrit/internal/handlers"
-	"github.com/shivajee98/aamishrit/internal/middleware"
 )
 
-func Setup(app *fiber.App, jwksClient *jwks.Client, jwkStore *middleware.JWKStore, handler *handlers.Handler) {
-	// public routes
-	// public := app.Group("/public")
-	// public.Get("public")
+func Setup(app *fiber.App, productHandler *handlers.ProductHandler) {
+	api := app.Group("/api")
 
-	// protected routes
-	app.Get("/protected", middleware.ClerkAuthMiddleware(jwksClient, jwkStore), func(c *fiber.Ctx) error {
-		userID := c.Locals("user_id")
-		return c.JSON(fiber.Map{"access": "granted", "user_id": userID})
-	})
+	
+
+	// Product Routes
+	product := api.Group("/product")
+	product.Get("/:id", productHandler.GetProductByID)
+	product.Get("/", productHandler.ListProducts)
 }
