@@ -232,6 +232,7 @@ func main() {
 
 	http.ListenAndServe(":3000", mux)
 }
+// Keeping the streak
 
 func publicRoute(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"access": "public"}`))
