@@ -21,15 +21,15 @@ func InitUserService(userRepo repository.UserRepository) UserService {
 
 // GetUser implements UserService.
 func (u *userService) GetUserByPhone(phone string) (*model.User, error) {
-	panic("unimplemented")
+	return u.userRepo.GetUserByPhone(phone)
 }
 
 // RegisterUser implements UserService.
 func (u *userService) RegisterUser(user *model.User) error {
-	panic("unimplemented")
+	return u.userRepo.RegisterUser(user)
 }
 
 // UpdateUser implements UserService.
 func (u *userService) UpdateUser(user *model.User) error {
-	panic("unimplemented")
+	return u.userRepo.UpdateUser(user)
 }

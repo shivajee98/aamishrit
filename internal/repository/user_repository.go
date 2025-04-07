@@ -6,7 +6,7 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(user *model.User) error
+	RegisterUser(user *model.User) error
 	GetUserByPhone(phone string) (*model.User, error)
 	UpdateUser(user *model.User) error
 }
@@ -19,7 +19,7 @@ func InitUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) CreateUser(user *model.User) error {
+func (r *userRepository) RegisterUser(user *model.User) error {
 	return r.db.Create(user).Error
 }
 
