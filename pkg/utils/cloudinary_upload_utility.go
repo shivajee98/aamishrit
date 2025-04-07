@@ -3,34 +3,40 @@ package utils
 import (
 	"context"
 	"io"
+	"sync"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/shivajee98/aamishrit/internal/config"
 )
 
-var cloudinaryInstance *cloudinary.Cloudinary
+var (
+	cloudinaryInstance *cloudinary.Cloudinary
+	initOnce           sync.Once
+	initErr            error
+)
 
-func init() {
-
-	cfg := config.LoadEnv()
-
-	CloudinarySecretKey := cfg.ClerkSecretKey
-
-	var err error
-
-	cloudinaryInstance, err = cloudinary.NewFromURL(CloudinarySecretKey)
-
-	CheckError("Error initialising Cloudinary", err)
-
+func getCloudinaryInstance() (*cloudinary.Cloudinary, error) {
+	initOnce.Do(func() {
+		cfg := config.LoadEnv()
+		cloudinaryInstance, initErr = cloudinary.NewFromURL(cfg.CLOUDINARY_URL)
+	})
+	return cloudinaryInstance, initErr
 }
 
-func UploadImageFromStream(reader io.Reader) (string, error) {
-	resp, err := cloudinaryInstance.Upload.Upload(context.Background(), reader, uploader.UploadParams{
+// 🔥 THIS is what you're calling from outside
+func UploadImage(reader io.Reader) (string, error) {
+	cld, err := getCloudinaryInstance()
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := cld.Upload.Upload(context.Background(), reader, uploader.UploadParams{
 		Folder: "exhibitor-images",
 	})
-
-	CheckError("Error uploading image", err)
+	if err != nil {
+		return "", err
+	}
 
 	return resp.SecureURL, nil
 }
