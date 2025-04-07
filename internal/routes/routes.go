@@ -5,7 +5,7 @@ import (
 	"github.com/shivajee98/aamishrit/internal/handlers"
 )
 
-func Setup(app *fiber.App, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler, orderHandler *handlers.OrderHandler, paymentHandler *handlers.PaymentHandler) {
+func Setup(app *fiber.App, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler) {
 	api := app.Group("/api")
 
 	// Product Routes
@@ -30,16 +30,18 @@ func Setup(app *fiber.App, productHandler *handlers.ProductHandler, cartHandler 
 	reviewRoutes.Delete("/:review_id", reviewHandler.DeleteReview)
 
 	// Order Routes
-	orderRoutes := app.Group("/orders")
+	// Not Needed for nowu
+	// orderRoutes := app.Group("/orders")
 
-	orderRoutes.Post("/", orderHandler.PlaceOrder)
-	orderRoutes.Get("/:order_id", orderHandler.GetOrder)
-	orderRoutes.Get("/user/:user_id", orderHandler.GetUserOrders)
-	orderRoutes.Put("/:order_id", orderHandler.UpdateOrderStatus)
-	orderRoutes.Delete("/:order_id", orderHandler.CancelOrder)
+	// orderRoutes.Post("/", orderHandler.PlaceOrder)
+	// orderRoutes.Get("/:order_id", orderHandler.GetOrder)
+	// orderRoutes.Get("/user/:user_id", orderHandler.GetUserOrders)
+	// orderRoutes.Put("/:order_id", orderHandler.UpdateOrderStatus)
+	// orderRoutes.Delete("/:order_id", orderHandler.CancelOrder)
 
 	// Payment Routes
-	app.Post("/payment/create", paymentHandler.CreateOrder)
-	app.Get("/payment/verify/:transaction_id/:order_id", paymentHandler.VerifyPayment)
+	// Not Needed for now
+	// app.Post("/payment/create", paymentHandler.CreateOrder)
+	// app.Get("/payment/verify/:transaction_id/:order_id", paymentHandler.VerifyPayment)
 
 }

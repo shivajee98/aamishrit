@@ -39,16 +39,18 @@ func main() {
 	reviewHandler := handlers.NewReviewHandler(reviewService)
 
 	// Order
-	orderRepo := repository.NewOrderRepository(dbConn)
-	orderService := services.NewOrderService(orderRepo)
-	orderHandler := handlers.NewOrderHandler(orderService)
+	// Not Needed for now
+	// orderRepo := repository.NewOrderRepository(dbConn)
+	// orderService := services.NewOrderService(orderRepo)
+	// orderHandler := handlers.NewOrderHandler(orderService)
 
 	// Payment
-	paymentRepo := repository.NewPaymentRepository(dbConn)
-	paymentService := services.NewPaymentService(paymentRepo)
-	paymentHandler := handlers.NewPaymentHandler(paymentService)
+	// Not Needed for now
+	// paymentRepo := repository.NewPaymentRepository(dbConn)
+	// paymentService := services.NewPaymentService(paymentRepo)
+	// paymentHandler := handlers.NewPaymentHandler(paymentService)
 
-	routes.Setup(app, productHandler, cartHandler, reviewHandler, orderHandler, paymentHandler)
+	routes.Setup(app, productHandler, cartHandler, reviewHandler)
 
 	utils.CheckError("Database Connection Failed!", err)
 
