@@ -3,22 +3,23 @@ package utils
 import (
 	"context"
 	"io"
-	"os"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
-	"github.com/joho/godotenv"
+	"github.com/shivajee98/aamishrit/internal/config"
 )
 
 var cloudinaryInstance *cloudinary.Cloudinary
 
 func init() {
 
-	err := godotenv.Load()
+	cfg := config.LoadEnv()
 
-	CheckError("Error Loading Env file", err)
+	CloudinarySecretKey := cfg.ClerkSecretKey
 
-	cloudinaryInstance, err = cloudinary.NewFromURL(os.Getenv("CLOUDINARY_URL"))
+	var err error
+
+	cloudinaryInstance, err = cloudinary.NewFromURL(CloudinarySecretKey)
 
 	CheckError("Error initialising Cloudinary", err)
 
