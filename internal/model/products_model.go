@@ -1,6 +1,10 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Product struct {
 	gorm.Model
@@ -11,4 +15,6 @@ type Product struct {
 	Stock       int                `gorm:"not null" json:"stock"`
 	Categories  []*ProductCategory `gorm:"many2many:product_categories;"`
 	Reviews     []Review           `gorm:"foreignKey:ProductID;constraint:OnDelete:CASCADE;"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }

@@ -9,7 +9,7 @@ type User struct {
 	Password               string     `gorm:"not null"`
 	Addresses              []Address  `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 	Carts                  []Cart     `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
-	Reviews                []Review   `gorm:"foreignKey:CustomerID;constraint:OnDelete:CASCADE;"`
+	Reviews                []Review   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 	Orders                 []Order    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 	Payments               []Payment  `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 	DefaultShippingAddress Address    `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:SET NULL;"`
