@@ -44,6 +44,7 @@ require (
 
 require (
 	github.com/clerk/clerk-sdk-go/v2 v2.2.0
+	github.com/cloudinary/cloudinary-go v1.7.0
 	github.com/cloudinary/cloudinary-go/v2 v2.9.1
 	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.52.6

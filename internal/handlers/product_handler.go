@@ -92,6 +92,8 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(product)
 }
+
+
 func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {

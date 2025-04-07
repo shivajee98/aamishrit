@@ -10,6 +10,7 @@ import (
 	"github.com/shivajee98/aamishrit/internal/repository"
 	"github.com/shivajee98/aamishrit/internal/routes"
 	"github.com/shivajee98/aamishrit/internal/services"
+	"github.com/shivajee98/aamishrit/internal/uploader"
 	"github.com/shivajee98/aamishrit/pkg/utils"
 )
 
@@ -22,6 +23,9 @@ func main() {
 	// Connect to DB
 	dbConn, err := db.Connect(cfg.DatabaseURL)
 
+	// cloudinary
+	cloudinaryUploader := uploader.NewCloudinaryUploader(cfg)
+
 	// User
 	setupuserRepo := repository.InitUserRepository(dbConn)
 	userService := services.InitUserService(setupuserRepo)
@@ -30,7 +34,7 @@ func main() {
 	// product
 	productRepo := repository.InitProductRepository(dbConn)
 	productService := services.InitProductService(productRepo)
-	productHandler := handlers.InitProductHandler(productService)
+	productHandler := handlers.InitProductHandler(productService, cloudinaryUploader)
 
 	// cart
 	cartRepo := repository.InitCartRepository(dbConn)
