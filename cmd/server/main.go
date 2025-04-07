@@ -22,7 +22,11 @@ func main() {
 	// Connect to DB
 	dbConn, err := db.Connect(cfg.DatabaseURL)
 
-	// setup
+	// User
+	setupuserRepo := repository.InitUserRepository(dbConn)
+	userService := services.InitUserService(setupuserRepo)
+	userHandler := handlers.InitUserHandler(userService)
+
 	// product
 	productRepo := repository.InitProductRepository(dbConn)
 	productService := services.InitProductService(productRepo)
@@ -50,7 +54,7 @@ func main() {
 	// paymentService := services.NewPaymentService(paymentRepo)
 	// paymentHandler := handlers.NewPaymentHandler(paymentService)
 
-	routes.Setup(app, productHandler, cartHandler, reviewHandler)
+	routes.Setup(app, userHandler, productHandler, cartHandler, reviewHandler)
 
 	utils.CheckError("Database Connection Failed!", err)
 

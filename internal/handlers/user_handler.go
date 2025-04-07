@@ -11,7 +11,7 @@ type UserHandler struct {
 }
 
 func InitUserHandler(userService services.UserService) *UserHandler {
-	return &UserHandler{userService}
+	return &UserHandler{userService: userService}
 }
 
 // POST /api/user/register (only used on first login if user doesn't exist)

@@ -4,16 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/shivajee98/aamishrit/internal/config"
 )
 
-var ClerkSecretKey = "sk_test_XXXX" // ideally load this from env
-
-func FetchClerkUser(userID string) (map[string]interface{}, error) {
+func FetchClerkUser(userID string) (map[string]any, error) {
 	url := fmt.Sprintf("https://api.clerk.dev/v1/users/%s", userID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
+	cfg := config.LoadEnv()
+
+	ClerkSecretKey := cfg.ClerkSecretKey
 
 	req.Header.Set("Authorization", "Bearer "+ClerkSecretKey)
 

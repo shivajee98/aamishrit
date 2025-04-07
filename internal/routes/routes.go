@@ -2,14 +2,20 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/shivajee98/aamishrit/internal/config"
 	"github.com/shivajee98/aamishrit/internal/handlers"
 	"github.com/shivajee98/aamishrit/internal/middleware"
 )
 
-func Setup(app *fiber.App, userHandler handlers.UserHandler, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler) {
+func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler) {
 	api := app.Group("/api")
 	// protected route
-	protected := app.Group("/user", middleware.ClerkMiddleware("sk_test_xxxx"))
+	
+	// env loading
+	cfg := config.LoadEnv()
+	ClerkSecretKey := cfg.ClerkSecretKey
+	
+	protected := app.Group("/user", middleware.ClerkMiddleware(ClerkSecretKey))
 
 	// User Routes
 	user := protected.Group("/user")
