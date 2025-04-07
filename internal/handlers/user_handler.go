@@ -19,9 +19,8 @@ func InitUserHandler(userService services.UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
-// POST /api/user/register (only used on first login if user doesn't exist)
+// POST /api/user/register
 func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
-	// Accessing Clerk User Id From c.Locals()
 	userID := c.Locals("user_id")
 
 	if userID == nil {
@@ -35,16 +34,18 @@ func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
 	}
 	user.UserID = userID.(string)
 
-	// Fetch Phone Number
 	userData, err := utils.FetchClerkUser(user.UserID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user from Clerk")
 	}
 
-	// Extract the phone number
-	if phone, ok := userData["phone"]; ok {
-		user.Phone = phone.(string)
+	phone := userData.PhoneNumber
+	if phone != "" {
+		user.Phone = phone
+	} else {
+		return fiber.NewError(fiber.StatusBadRequest, "Phone number not found in Clerk")
 	}
+
 	err = h.userService.RegisterUser(&user)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -66,14 +67,35 @@ func (h *UserHandler) GetUserByPhone(c *fiber.Ctx) error {
 
 // PUT /api/user/update
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
+	userID := c.Locals("user_id")
+
+	if userID == nil {
+		return fiber.NewError(fiber.StatusUnauthorized, "User ID not found")
+	}
+
 	var user model.User
+	userData, err := utils.FetchClerkUser(userID.(string))
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user from Clerk")
+	}
+
+	userExists, err := h.userService.GetUserByPhone(userData.PhoneNumber)
+
 	if err := c.BodyParser(&user); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid body")
 	}
-	err := h.userService.UpdateUser(&user)
+
+	if userExists == nil {
+		c.Locals("user_id", nil)
+
+		return c.Redirect("/register?error=user_not_found")
+	}
+
+	err = h.userService.UpdateUser(&user)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
+
 	return c.JSON(fiber.Map{
 		"message": "user updated successfully",
 	})
