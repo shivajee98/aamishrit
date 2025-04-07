@@ -9,6 +9,9 @@ import (
 type ProductRepository interface {
 	GetProductByID(id uint) (*model.Product, error)
 	ListProducts(offset, limit int) ([]model.Product, error)
+	CreateProduct(product *model.Product) error
+	UpdateProduct(product *model.Product) error
+	DeleteProduct(id uint) error
 }
 
 type productRepository struct {
@@ -34,4 +37,16 @@ func (r *productRepository) ListProducts(offset, limit int) ([]model.Product, er
 	var products []model.Product
 	err := r.db.Offset(offset).Limit(limit).Find(&products).Error
 	return products, err
+}
+
+func (r *productRepository) CreateProduct(product *model.Product) error {
+	return r.db.Create(product).Error
+}
+
+func (r *productRepository) UpdateProduct(product *model.Product) error {
+	return r.db.Save(product).Error
+}
+
+func (r *productRepository) DeleteProduct(id uint) error {
+	return r.db.Delete(&model.Product{}, id).Error
 }

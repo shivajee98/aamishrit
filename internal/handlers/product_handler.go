@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/shivajee98/aamishrit/internal/model"
 	"github.com/shivajee98/aamishrit/internal/services"
 )
 
@@ -41,4 +42,52 @@ func (h *ProductHandler) ListProducts(c *fiber.Ctx) error {
 
 	return c.JSON(product)
 
+}
+
+func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
+	var product model.Product
+	if err := c.BodyParser(&product); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body"})
+	}
+
+	err := h.productService.CreateProduct(&product)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(product)
+}
+
+func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id"})
+	}
+
+	var product model.Product
+	if err := c.BodyParser(&product); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body"})
+	}
+	product.ID = uint(id)
+
+	err = h.productService.UpdateProduct(&product)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(product)
+}
+
+func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id"})
+	}
+
+	err = h.productService.DeleteProduct(uint(id))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
 }

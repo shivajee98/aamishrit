@@ -12,6 +12,9 @@ func Setup(app *fiber.App, productHandler *handlers.ProductHandler, cartHandler 
 	product := api.Group("/product")
 	product.Get("/:id", productHandler.GetProductByID)
 	product.Get("/", productHandler.ListProducts)
+	product.Post("/", productHandler.CreateProduct)
+	product.Put("/:id", productHandler.UpdateProduct)
+	product.Delete("/:id", productHandler.DeleteProduct)
 
 	// Cart Routes
 	cart := api.Group("/cart")
