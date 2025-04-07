@@ -10,17 +10,18 @@ import (
 func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler) {
 	api := app.Group("/api")
 	// protected route
-	
+
 	// env loading
 	cfg := config.LoadEnv()
 	ClerkSecretKey := cfg.ClerkSecretKey
-	
+
 	protected := app.Group("/user", middleware.ClerkMiddleware(ClerkSecretKey))
 
 	// User Routes
 	user := protected.Group("/user")
 
-	user.Get("/user", userHandler.GetProfile)
+	user.Post("/register", userHandler.RegisterUser)
+	user.Post("/login", userHandler.Login)
 
 	// Product Routes
 	product := api.Group("/product")

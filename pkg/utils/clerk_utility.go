@@ -30,7 +30,7 @@ func FetchClerkUser(userID string) (map[string]any, error) {
 		return nil, fmt.Errorf("Clerk returned status %d", resp.StatusCode)
 	}
 
-	var userData map[string]interface{}
+	var userData map[string] any
 	if err := json.NewDecoder(resp.Body).Decode(&userData); err != nil {
 		return nil, err
 	}

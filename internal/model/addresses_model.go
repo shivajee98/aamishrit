@@ -10,6 +10,4 @@ type Address struct {
 	State             string `gorm:"size:100;not null"`
 	Country           string `gorm:"size:100;not null"`
 	ZipCode           string `gorm:"size:20;not null"`
-	IsDefaultShipping bool   `gorm:"default:false"`
-	IsDefaultBilling  bool   `gorm:"default:false"`
 }

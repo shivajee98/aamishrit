@@ -7,7 +7,7 @@ import (
 
 type UserService interface {
 	RegisterUser(user *model.User) error
-	GetUser(phone string) (*model.User, error)
+	GetUserByPhone(phone string) (*model.User, error)
 	UpdateUser(user *model.User) error
 }
 
@@ -20,7 +20,7 @@ func InitUserService(userRepo repository.UserRepository) UserService {
 }
 
 // GetUser implements UserService.
-func (u *userService) GetUser(phone string) (*model.User, error) {
+func (u *userService) GetUserByPhone(phone string) (*model.User, error) {
 	panic("unimplemented")
 }
 
