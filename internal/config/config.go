@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	DatabaseURL    string
-	ClerkSecretKey string
-	CLOUDINARY_URL string
+	DatabaseURL      string
+	ClerkSecretKey   string
+	CLOUDINARY_URL   string
+	CLERK_SECRET_KEY string
 }
 
 func LoadEnv() *Config {
@@ -20,8 +21,9 @@ func LoadEnv() *Config {
 	}
 
 	return &Config{
-		DatabaseURL:    os.Getenv("SUPABASE_URL"),
-		ClerkSecretKey: os.Getenv("CLERK_SECRET_KEY"),
-		CLOUDINARY_URL: os.Getenv("CLOUDINARY_URL"),
+		DatabaseURL:      os.Getenv("SUPABASE_URL"),
+		ClerkSecretKey:   os.Getenv("CLERK_SECRET_KEY"),
+		CLOUDINARY_URL:   os.Getenv("CLOUDINARY_URL"),
+		CLERK_SECRET_KEY: os.Getenv("CLERK_SECRET_KEY"),
 	}
 }

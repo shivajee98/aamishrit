@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/clerk/clerk-sdk-go/v2/jwt"
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,10 +14,6 @@ type contextKey string
 const userIDKey contextKey = "userID"
 
 func ClerkMiddleware(secretKey string) fiber.Handler {
-	// Set Clerk key only once — safe to call repeatedly, will just override internally
-	clerk.SetKey(secretKey)
-	log.Println("Clerk key initialized from middleware")
-
 	return func(c *fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {

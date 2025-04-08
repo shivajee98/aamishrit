@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/shivajee98/aamishrit/internal/config"
@@ -23,6 +24,9 @@ func main() {
 
 	// Connect to DB
 	dbConn, err := db.Connect(cfg.DatabaseURL)
+
+	// clerk key setup
+	clerk.SetKey(cfg.CLERK_SECRET_KEY)
 
 	// cloudinary
 	cloudinaryUploader := uploader.NewCloudinaryUploader(cfg)
