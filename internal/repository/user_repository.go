@@ -35,3 +35,4 @@ func (r *userRepository) GetUserByPhone(phone string) (*model.User, error) {
 func (r *userRepository) UpdateUser(user *model.User) error {
 	return r.db.Save(user).Error
 }
+// 
