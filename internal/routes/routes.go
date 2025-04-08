@@ -23,6 +23,7 @@ func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *ha
 	user.Post("/register", userHandler.RegisterUser)
 	user.Post("/login", userHandler.Login)
 	user.Put("/update", userHandler.UpdateUser)
+	user.Get("/update", productHandler.ListProducts)
 
 	// Product Routes
 	product := api.Group("/product")

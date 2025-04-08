@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/shivajee98/aamishrit/internal/config"
 	"github.com/shivajee98/aamishrit/internal/db"
 	"github.com/shivajee98/aamishrit/internal/handlers"
@@ -57,6 +58,12 @@ func main() {
 	// paymentRepo := repository.NewPaymentRepository(dbConn)
 	// paymentService := services.NewPaymentService(paymentRepo)
 	// paymentHandler := handlers.NewPaymentHandler(paymentService)
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:5173",      // Allow the specific origin
+		AllowMethods: "GET,POST,PUT,DELETE",        // Methods that are allowed
+		AllowHeaders: "Content-Type,Authorization", // Headers that are allowed
+	}))
 
 	routes.Setup(app, userHandler, productHandler, cartHandler, reviewHandler)
 

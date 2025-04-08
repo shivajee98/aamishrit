@@ -1,44 +1,59 @@
 package middleware
 
 import (
-	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
+	"github.com/clerk/clerk-sdk-go/v2"
+	"github.com/clerk/clerk-sdk-go/v2/jwt"
 	"github.com/gofiber/fiber/v2"
 )
 
+type contextKey string
+
+const userIDKey contextKey = "userID"
+
 func ClerkMiddleware(secretKey string) fiber.Handler {
+	// Set Clerk key only once — safe to call repeatedly, will just override internally
+	clerk.SetKey(secretKey)
+	log.Println("Clerk key initialized from middleware")
+
 	return func(c *fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
-		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing or invalid auth header"})
+		if authHeader == "" {
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+				"message": "Unauthorized: Missing Authorization header",
+			})
 		}
 
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-
-		// Validate session and extract user_id
-		req, _ := http.NewRequest("GET", "https://api.clerk.dev/v1/sessions/"+token, nil)
-		req.Header.Set("Authorization", "Bearer "+secretKey)
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil || resp.StatusCode != http.StatusOK {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid session"})
-		}
-		defer resp.Body.Close()
-
-		var session struct {
-			UserID string `json:"user_id"`
-		}
-		if err := json.NewDecoder(resp.Body).Decode(&session); err != nil {
-			fmt.Println("Failed to decode session:", err)
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid session response"})
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+				"message": "Unauthorized: Malformed Authorization header",
+			})
 		}
 
-		// Inject into context
-		c.Locals("user_id", session.UserID)
+		token := parts[1]
+		if token == "" {
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+				"message": "Unauthorized: Empty token",
+			})
+		}
+
+		claims, err := jwt.Verify(c.Context(), &jwt.VerifyParams{
+			Token: token,
+		})
+		if err != nil {
+			log.Printf("JWT verification failed: %v", err)
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+				"message": "Unauthorized: Invalid token",
+				"error":   err.Error(),
+			})
+		}
+
+		log.Printf("JWT verified. User ID: %s", claims.Subject)
+		c.Locals(string(userIDKey), claims.Subject)
 
 		return c.Next()
 	}

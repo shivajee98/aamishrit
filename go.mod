@@ -51,6 +51,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/lib/pq v1.10.9
 	github.com/razorpay/razorpay-go v1.3.2
 	github.com/rs/cors v1.11.1
 	github.com/spf13/viper v1.20.1
