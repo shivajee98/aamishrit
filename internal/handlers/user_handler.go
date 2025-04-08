@@ -21,7 +21,7 @@ func InitUserHandler(userService services.UserService) *UserHandler {
 
 // POST /api/user/register
 func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
-	userID := c.Locals("user_id")
+	userID := c.Locals("clerk_id")
 
 	if userID == nil {
 		return fiber.NewError(fiber.StatusUnauthorized, "User ID not found")

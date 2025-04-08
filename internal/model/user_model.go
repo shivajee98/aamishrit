@@ -7,7 +7,6 @@ type User struct {
 	Name      string     `gorm:"size:255;not null"`
 	UserID    string     `gorm:"not null"`
 	Phone     string     `gorm:"size:20;uniqueIndex;not null"`
-	Password  string     `gorm:"not null"`
 	Addresses []Address  `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 	Carts     []Cart     `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 	Reviews   []Review   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`

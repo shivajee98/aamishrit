@@ -10,7 +10,7 @@ import (
 
 type contextKey string
 
-const userIDKey contextKey = "userID"
+const userIDKey contextKey = "clerk_id"
 
 func ClerkMiddleware(secretKey string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
