@@ -8,6 +8,7 @@ import (
 type UserRepository interface {
 	RegisterUser(user *model.User) error
 	GetUserByPhone(phone string) (*model.User, error)
+	GetUserByClerkID(clerkID string) (*model.User, error)
 	UpdateUser(user *model.User) error
 }
 
@@ -35,4 +36,12 @@ func (r *userRepository) GetUserByPhone(phone string) (*model.User, error) {
 func (r *userRepository) UpdateUser(user *model.User) error {
 	return r.db.Save(user).Error
 }
-// 
+
+func (r *userRepository) GetUserByClerkID(clerkID string) (*model.User, error) {
+	var user model.User
+	err := r.db.Where("clerkID = ?", clerkID).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

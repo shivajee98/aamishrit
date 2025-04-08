@@ -19,7 +19,7 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	err = dbConn.AutoMigrate(&model.Product{})
+	err = dbConn.AutoMigrate(&model.User{}, &model.Product{})
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}

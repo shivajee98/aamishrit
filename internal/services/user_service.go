@@ -9,6 +9,7 @@ type UserService interface {
 	RegisterUser(user *model.User) error
 	GetUserByPhone(phone string) (*model.User, error)
 	UpdateUser(user *model.User) error
+	GetUserByClerkID(clerkID string) (*model.User, error)
 }
 
 type userService struct {
@@ -32,4 +33,9 @@ func (u *userService) RegisterUser(user *model.User) error {
 // UpdateUser implements UserService.
 func (u *userService) UpdateUser(user *model.User) error {
 	return u.userRepo.UpdateUser(user)
+}
+
+// Get User By Clerk Id
+func (u *userService) GetUserByClerkID(clerkID string) (*model.User, error) {
+	return u.userRepo.GetUserByClerkID(clerkID)
 }

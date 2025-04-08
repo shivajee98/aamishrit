@@ -21,10 +21,19 @@ func InitUserHandler(userService services.UserService) *UserHandler {
 
 // POST /api/user/register
 func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
-	userID := c.Locals("clerk_id")
-
-	if userID == nil {
+	ClerkID := c.Locals("clerk_id")
+	clerkID, ok := ClerkID.(string)
+	if !ok {
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid Clerk ID")
+	}
+	if !ok {
 		return fiber.NewError(fiber.StatusUnauthorized, "User ID not found")
+	}
+
+	userExists, err := h.userService.GetUserByClerkID(clerkID)
+
+	if err == nil && userExists != nil {
+		return fiber.NewError(fiber.StatusConflict, "User already exists")
 	}
 
 	var user model.User
@@ -32,9 +41,9 @@ func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(&user); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid body")
 	}
-	user.UserID = userID.(string)
+	user.ClerkID = clerkID
 
-	userData, err := utils.FetchClerkUser(user.UserID)
+	userData, err := utils.FetchClerkUser(user.ClerkID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user from Clerk")
 	}
@@ -67,14 +76,14 @@ func (h *UserHandler) GetUserByPhone(c *fiber.Ctx) error {
 
 // PUT /api/user/update
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
-	userID := c.Locals("user_id")
+	ClerkID := c.Locals("user_id")
 
-	if userID == nil {
+	if ClerkID == nil {
 		return fiber.NewError(fiber.StatusUnauthorized, "User ID not found")
 	}
 
 	var user model.User
-	userData, err := utils.FetchClerkUser(userID.(string))
+	userData, err := utils.FetchClerkUser(ClerkID.(string))
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user from Clerk")
 	}
