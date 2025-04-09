@@ -9,22 +9,25 @@ import (
 )
 
 type ReviewHandler struct {
-	reviewService services.ReviewService
+	service services.ReviewService
 }
 
-func NewReviewHandler(reviewService services.ReviewService) *ReviewHandler {
-	return &ReviewHandler{reviewService: reviewService}
+func InitReviewHandler(service services.ReviewService) *ReviewHandler {
+	return &ReviewHandler{service: service}
 }
 
 func (h *ReviewHandler) AddReview(c *fiber.Ctx) error {
 	var review model.Review
 	if err := c.BodyParser(&review); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input")
 	}
 
-	err := h.reviewService.AddReview(&review)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	if review.Rating < 1 || review.Rating > 5 {
+		return fiber.NewError(fiber.StatusBadRequest, "Rating must be between 1 and 5")
+	}
+
+	if err := h.service.AddReview(&review); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Review added successfully"})
@@ -33,12 +36,12 @@ func (h *ReviewHandler) AddReview(c *fiber.Ctx) error {
 func (h *ReviewHandler) GetReviews(c *fiber.Ctx) error {
 	productID, err := strconv.Atoi(c.Params("product_id"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid product ID"})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid product ID")
 	}
 
-	reviews, err := h.reviewService.GetReviews(uint(productID))
+	reviews, err := h.service.GetReviews(uint(productID))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(reviews)
@@ -47,17 +50,21 @@ func (h *ReviewHandler) GetReviews(c *fiber.Ctx) error {
 func (h *ReviewHandler) UpdateReview(c *fiber.Ctx) error {
 	reviewID, err := strconv.Atoi(c.Params("review_id"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid review ID"})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid review ID")
 	}
 
-	var review model.Review
-	if err := c.BodyParser(&review); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+	var updated model.Review
+	if err := c.BodyParser(&updated); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input")
 	}
 
-	err = h.reviewService.UpdateReview(uint(reviewID), &review)
+	if updated.Rating < 1 || updated.Rating > 5 {
+		return fiber.NewError(fiber.StatusBadRequest, "Rating must be between 1 and 5")
+	}
+
+	err = h.service.UpdateReview(uint(reviewID), &updated)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(fiber.Map{"message": "Review updated successfully"})
@@ -66,12 +73,12 @@ func (h *ReviewHandler) UpdateReview(c *fiber.Ctx) error {
 func (h *ReviewHandler) DeleteReview(c *fiber.Ctx) error {
 	reviewID, err := strconv.Atoi(c.Params("review_id"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid review ID"})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid review ID")
 	}
 
-	err = h.reviewService.DeleteReview(uint(reviewID))
+	err = h.service.DeleteReview(uint(reviewID))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(fiber.Map{"message": "Review deleted successfully"})

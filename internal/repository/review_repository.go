@@ -6,9 +6,9 @@ import (
 )
 
 type ReviewRepository interface {
-	AddReview(review *model.Review) error
-	GetReviewsByProduct(productID uint) ([]model.Review, error)
-	UpdateReview(review *model.Review) error
+	CreateReview(review *model.Review) error
+	GetReviewsByProductID(productID uint) ([]model.Review, error)
+	UpdateReview(reviewID uint, updated *model.Review) error
 	DeleteReview(reviewID uint) error
 }
 
@@ -16,22 +16,22 @@ type reviewRepository struct {
 	db *gorm.DB
 }
 
-func NewReviewRepository(db *gorm.DB) ReviewRepository {
+func InitReviewRepository(db *gorm.DB) ReviewRepository {
 	return &reviewRepository{db: db}
 }
 
-func (r *reviewRepository) AddReview(review *model.Review) error {
+func (r *reviewRepository) CreateReview(review *model.Review) error {
 	return r.db.Create(review).Error
 }
 
-func (r *reviewRepository) GetReviewsByProduct(productID uint) ([]model.Review, error) {
+func (r *reviewRepository) GetReviewsByProductID(productID uint) ([]model.Review, error) {
 	var reviews []model.Review
 	err := r.db.Where("product_id = ?", productID).Find(&reviews).Error
 	return reviews, err
 }
 
-func (r *reviewRepository) UpdateReview(review *model.Review) error {
-	return r.db.Save(review).Error
+func (r *reviewRepository) UpdateReview(reviewID uint, updated *model.Review) error {
+	return r.db.Model(&model.Review{}).Where("id = ?", reviewID).Updates(updated).Error
 }
 
 func (r *reviewRepository) DeleteReview(reviewID uint) error {

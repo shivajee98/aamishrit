@@ -55,11 +55,11 @@ func main() {
 	addressRepo := repository.InitAddressRepository(dbConn)
 	addressService := services.InitAddressService(addressRepo)
 	addressHandler := handlers.InitAddressHandler(addressService)
+
 	// Order
-	// Not Needed for now
-	// orderRepo := repository.NewOrderRepository(dbConn)
-	// orderService := services.NewOrderService(orderRepo)
-	// orderHandler := handlers.NewOrderHandler(orderService)
+	orderRepo := repository.NewOrderRepository(dbConn)
+	orderService := services.NewOrderService(orderRepo, setupuserRepo)
+	orderHandler := handlers.NewOrderHandler(orderService)
 
 	// Payment
 	// Not Needed for now
@@ -73,7 +73,7 @@ func main() {
 		AllowHeaders: "Content-Type,Authorization", // Headers that are allowed
 	}))
 
-	routes.Setup(app, userHandler, productHandler, cartHandler, reviewHandler, addressHandler)
+	routes.Setup(app, userHandler, productHandler, cartHandler, reviewHandler, addressHandler, orderHandler)
 
 	utils.CheckError("Database Connection Failed!", err)
 

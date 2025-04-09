@@ -7,7 +7,7 @@ import (
 	"github.com/shivajee98/aamishrit/internal/middleware"
 )
 
-func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler, addressHandler *handlers.AddressHandler) {
+func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler, addressHandler *handlers.AddressHandler, orderHandler *handlers.OrderHandler) {
 	cfg := config.LoadEnv()
 	clerkKey := cfg.ClerkSecretKey
 
@@ -58,14 +58,13 @@ func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *ha
 	address.Get("/default", addressHandler.GetDefaultAddress)
 
 	// Order Routes
-	// Not Needed for now
-	// orderRoutes := app.Group("/orders")
+	orderRoutes := app.Group("/orders")
 
-	// orderRoutes.Post("/", orderHandler.PlaceOrder)
-	// orderRoutes.Get("/:order_id", orderHandler.GetOrder)
-	// orderRoutes.Get("/user/:user_id", orderHandler.GetUserOrders)
-	// orderRoutes.Put("/:order_id", orderHandler.UpdateOrderStatus)
-	// orderRoutes.Delete("/:order_id", orderHandler.CancelOrder)
+	orderRoutes.Post("/", orderHandler.PlaceOrder)
+	orderRoutes.Get("/:order_id", orderHandler.GetOrder)
+	orderRoutes.Get("/user/:user_id", orderHandler.GetUserOrders)
+	orderRoutes.Put("/:order_id", orderHandler.UpdateOrderStatus)
+	orderRoutes.Delete("/:order_id", orderHandler.CancelOrder)
 
 	// Payment Routes
 	// Not Needed for now
