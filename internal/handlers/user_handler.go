@@ -108,7 +108,6 @@ func (h *UserHandler) GetUserByPhone(c *fiber.Ctx) error {
 }
 
 // PUT /api/user/update
-// PUT /api/user/update
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	// Step 1: Auth check
 	clerkIDValue := c.Locals(mw.UserIDKey)
