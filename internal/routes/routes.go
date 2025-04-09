@@ -19,7 +19,6 @@ func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *ha
 
 	// User Routes
 	user := protected.Group("/user")
-	user.Get("/get", userHandler.GetClerkUser)
 
 	user.Post("/register", userHandler.RegisterUser)
 	user.Post("/login", userHandler.Login)

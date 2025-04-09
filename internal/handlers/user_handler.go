@@ -108,38 +108,58 @@ func (h *UserHandler) GetUserByPhone(c *fiber.Ctx) error {
 }
 
 // PUT /api/user/update
+// PUT /api/user/update
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
-	ClerkID := c.Locals("user_id")
-
-	if ClerkID == nil {
-		return fiber.NewError(fiber.StatusUnauthorized, "User ID not found")
+	// Step 1: Auth check
+	clerkIDValue := c.Locals(mw.UserIDKey)
+	clerkID, ok := clerkIDValue.(string)
+	if !ok || clerkID == "" {
+		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
 	}
 
-	var user model.User
-	userData, err := utils.FetchClerkUser(ClerkID.(string))
+	// Step 2: Fetch Clerk user details
+	clerkUser, err := utils.FetchClerkUser(clerkID)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user from Clerk")
+		log.Printf("UpdateUser: failed to fetch Clerk user details: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user details")
+	}
+	phone := clerkUser.PhoneNumber
+	if phone == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Phone number missing from Clerk")
 	}
 
-	userExists, err := h.userService.GetUserByPhone(userData.PhoneNumber)
-
-	if err := c.BodyParser(&user); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid body")
-	}
-
-	if userExists == nil {
-		c.Locals("user_id", nil)
-
-		return c.Redirect("/register?error=user_not_found")
-	}
-
-	err = h.userService.UpdateUser(&user)
+	// Step 3: Find existing user
+	existingUser, err := h.userService.GetUserByPhone(phone)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		log.Printf("UpdateUser: user not found for phone %s", phone)
+		return fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "user updated successfully",
+	// Step 4: Parse update request (only allow editable fields)
+	var updateData struct {
+		Name string `json:"name"`
+		// add other updatable fields here like email, profileImage, etc.
+	}
+	if err := c.BodyParser(&updateData); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	// Step 5: Validate/sanitize
+	updateData.Name = sanitizeString(updateData.Name)
+	if updateData.Name == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Name cannot be empty")
+	}
+
+	// Step 6: Update only allowed fields
+	existingUser.Name = updateData.Name
+
+	if err := h.userService.UpdateUser(existingUser); err != nil {
+		log.Printf("UpdateUser: failed to update user: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update user")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "User updated successfully",
 	})
 }
 
@@ -156,22 +176,6 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(user)
-}
-
-func (h *UserHandler) GetClerkUser(c *fiber.Ctx) error {
-	ClerkID := c.Locals("clerk_id")
-	clerkID, ok := ClerkID.(string)
-	if !ok {
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid Clerk ID")
-	}
-
-	userData, err := utils.FetchClerkUser(clerkID)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user from Clerk")
-	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": userData})
-
 }
 
 func sanitizeString(input string) string {
