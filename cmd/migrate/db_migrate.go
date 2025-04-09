@@ -20,12 +20,12 @@ func main() {
 	}
 
 	// Drop the tables if they exist
-	err = dbConn.Migrator().DropTable(&model.User{}, &model.Product{})
-	if err != nil {
-		log.Fatalf("Failed to drop tables: %v", err)
-	}
+	// err = dbConn.Migrator().DropTable(&model.User{}, &model.Product{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.OrderItem{}, &model.Product{}, &model.Review{}, &model.Wishlist{})
+	// if err != nil {
+	// 	log.Fatalf("Failed to drop tables: %v", err)
+	// }
 
-	err = dbConn.AutoMigrate(&model.User{}, &model.Product{})
+	err = dbConn.AutoMigrate(&model.User{}, &model.Product{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.OrderItem{}, &model.Product{}, &model.Review{}, &model.Wishlist{})
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}
