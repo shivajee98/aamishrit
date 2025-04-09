@@ -40,6 +40,7 @@ func FetchClerkUser(userID string) (*ClerkUser, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&userData); err != nil {
 		return nil, err
 	}
+	fmt.Println("User Data from Clerk:", userData)
 
 	return &userData, nil
 }

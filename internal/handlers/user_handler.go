@@ -26,9 +26,6 @@ func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
 	if !ok {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid Clerk ID")
 	}
-	if !ok {
-		return fiber.NewError(fiber.StatusUnauthorized, "User ID not found")
-	}
 
 	userExists, err := h.userService.GetUserByClerkID(clerkID)
 
@@ -123,4 +120,20 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(user)
+}
+
+func (h *UserHandler) GetClerkUser(c *fiber.Ctx) error {
+	ClerkID := c.Locals("clerk_id")
+	clerkID, ok := ClerkID.(string)
+	if !ok {
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid Clerk ID")
+	}
+
+	userData, err := utils.FetchClerkUser(clerkID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user from Clerk")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": userData})
+
 }
