@@ -47,9 +47,9 @@ func main() {
 	cartHandler := handlers.InitCartHandler(cartService)
 
 	// Review
-	reviewRepo := repository.NewReviewRepository(dbConn)
-	reviewService := services.NewReviewService(reviewRepo)
-	reviewHandler := handlers.NewReviewHandler(reviewService)
+	reviewRepo := repository.InitReviewRepository(dbConn)
+	reviewService := services.InitReviewService(reviewRepo)
+	reviewHandler := handlers.InitReviewHandler(reviewService)
 
 	// Address
 	addressRepo := repository.InitAddressRepository(dbConn)
