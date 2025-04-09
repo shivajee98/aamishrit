@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Reference</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f9f9fb;
+        color: #1a1a1a;
+        margin: 0;
+        padding: 2rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .category {
+        background: #ffffff;
+        border-left: 6px solid #7f5af0;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .category h2 {
+        margin-top: 0;
+        font-size: 1.3rem;
+        color: #333;
+      }
+
+      .route {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .route:last-child {
+        border-bottom: none;
+      }
+
+      .method {
+        font-weight: bold;
+        font-size: 0.9rem;
+        margin-right: 1rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 5px;
+        color: white;
+      }
+
+      .GET {
+        background-color: #2cb67d;
+      }
+      .POST {
+        background-color: #3b82f6;
+      }
+      .PUT {
+        background-color: #facc15;
+        color: black;
+      }
+      .DELETE {
+        background-color: #ef4444;
+      }
+
+      .path {
+        font-family: monospace;
+        color: #555;
+        flex-grow: 1;
+      }
+
+      .section {
+        margin-bottom: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧙‍♂️ API Reference</h1>
+
+    <div class="section category">
+      <h2>🟢 Public Routes</h2>
+      <div class="route">
+        <span class="method POST">POST</span
+        ><span class="path">/api/register</span>
+      </div>
+      <div class="route">
+        <span class="method POST">POST</span
+        ><span class="path">/api/login</span>
+      </div>
+      <div class="route">
+        <span class="method GET">GET</span
+        ><span class="path">/api/products/:id</span>
+      </div>
+      <div class="route">
+        <span class="method GET">GET</span
+        ><span class="path">/api/products</span>
+      </div>
+    </div>
+
+    <div class="section category">
+      <h2>🔐 User Routes</h2>
+      <div class="route">
+        <span class="method PUT">PUT</span><span class="path">/api/user</span>
+      </div>
+    </div>
+
+    <div class="section category">
+      <h2>🛒 Product Management</h2>
+      <div class="route">
+        <span class="method POST">POST</span
+        ><span class="path">/api/products</span>
+      </div>
+      <div class="route">
+        <span class="method PUT">PUT</span
+        ><span class="path">/api/products/:id</span>
+      </div>
+      <div class="route">
+        <span class="method DELETE">DELETE</span
+        ><span class="path">/api/products/:id</span>
+      </div>
+    </div>
+
+    <div class="section category">
+      <h2>🧺 Cart Routes</h2>
+      <div class="route">
+        <span class="method POST">POST</span><span class="path">/api/cart</span>
+      </div>
+      <div class="route">
+        <span class="method GET">GET</span><span class="path">/api/cart</span>
+      </div>
+      <div class="route">
+        <span class="method DELETE">DELETE</span
+        ><span class="path">/api/cart/:cart_id</span>
+      </div>
+      <div class="route">
+        <span class="method DELETE">DELETE</span
+        ><span class="path">/api/cart/clear</span>
+      </div>
+    </div>
+
+    <div class="section category">
+      <h2>⭐ Review Routes</h2>
+      <div class="route">
+        <span class="method POST">POST</span
+        ><span class="path">/api/reviews</span>
+      </div>
+      <div class="route">
+        <span class="method GET">GET</span
+        ><span class="path">/api/reviews/:product_id</span>
+      </div>
+      <div class="route">
+        <span class="method PUT">PUT</span
+        ><span class="path">/api/reviews/:review_id</span>
+      </div>
+      <div class="route">
+        <span class="method DELETE">DELETE</span
+        ><span class="path">/api/reviews/:review_id</span>
+      </div>
+    </div>
+
+    <div class="section category">
+      <h2>🏠 Address Routes</h2>
+      <div class="route">
+        <span class="method GET">GET</span
+        ><span class="path">/api/address</span>
+      </div>
+      <div class="route">
+        <span class="method POST">POST</span
+        ><span class="path">/api/address</span>
+      </div>
+      <div class="route">
+        <span class="method GET">GET</span
+        ><span class="path">/api/address/:id</span>
+      </div>
+      <div class="route">
+        <span class="method PUT">PUT</span
+        ><span class="path">/api/address/:id</span>
+      </div>
+      <div class="route">
+        <span class="method DELETE">DELETE</span
+        ><span class="path">/api/address/:id</span>
+      </div>
+      <div class="route">
+        <span class="method PUT">PUT</span
+        ><span class="path">/api/address/:id/default</span>
+      </div>
+      <div class="route">
+        <span class="method GET">GET</span
+        ><span class="path">/api/address/default</span>
+      </div>
+    </div>
+
+    <div class="section category">
+      <h2>📦 Order Routes</h2>
+      <div class="route">
+        <span class="method POST">POST</span><span class="path">/orders</span>
+      </div>
+      <div class="route">
+        <span class="method GET">GET</span
+        ><span class="path">/orders/:order_id</span>
+      </div>
+      <div class="route">
+        <span class="method GET">GET</span
+        ><span class="path">/orders/user/:user_id</span>
+      </div>
+      <div class="route">
+        <span class="method PUT">PUT</span
+        ><span class="path">/orders/:order_id</span>
+      </div>
+      <div class="route">
+        <span class="method DELETE">DELETE</span
+        ><span class="path">/orders/:order_id</span>
+      </div>
+    </div>
+  </body>
+</html>
