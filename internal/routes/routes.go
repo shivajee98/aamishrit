@@ -7,49 +7,58 @@ import (
 	"github.com/shivajee98/aamishrit/internal/middleware"
 )
 
-func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler) {
-	api := app.Group("/api")
-	// protected route
-
-	// env loading
+func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, reviewHandler *handlers.ReviewHandler, addressHandler *handlers.AddressHandler) {
 	cfg := config.LoadEnv()
-	ClerkSecretKey := cfg.ClerkSecretKey
+	clerkKey := cfg.ClerkSecretKey
 
-	protected := app.Group("/user", middleware.ClerkMiddleware(ClerkSecretKey))
+	api := app.Group("/api")
 
-	// User Routes
+	// 🟢 Public Routes
+	api.Post("/register", userHandler.RegisterUser)
+	api.Post("/login", userHandler.Login)
+
+	api.Get("/products/:id", productHandler.GetProductByID)
+	api.Get("/products", productHandler.ListProducts)
+
+	// 🔒 Protected Routes (Clerk Auth Middleware)
+	protected := api.Group("/", middleware.ClerkMiddleware(clerkKey))
+
+	// 🔐 User Routes
 	user := protected.Group("/user")
+	user.Put("/", userHandler.UpdateUser)
 
-	user.Post("/register", userHandler.RegisterUser)
-	user.Post("/login", userHandler.Login)
-	user.Put("/update", userHandler.UpdateUser)
-
-	// Product Routes
-	product := api.Group("/product")
-	product.Get("/:id", productHandler.GetProductByID)
-	user.Get("/", productHandler.ListProducts)
+	// 🔐 Product Management (for admins / sellers)
+	product := protected.Group("/products")
 	product.Post("/", productHandler.CreateProduct)
 	product.Put("/:id", productHandler.UpdateProduct)
 	product.Delete("/:id", productHandler.DeleteProduct)
 
-	// Cart Routes
-	cart := api.Group("/cart")
-
+	// 🔐 Cart Routes
+	cart := protected.Group("/cart")
 	cart.Post("/", cartHandler.AddToCart)
-	cart.Get("/:user_id", cartHandler.GetCart)
+	cart.Get("/", cartHandler.GetCart) // gets cart of current user
 	cart.Delete("/:cart_id", cartHandler.RemoveFromCart)
-	cart.Delete("/clear/:user_id", cartHandler.ClearCart)
+	cart.Delete("/clear", cartHandler.ClearCart) // clears current user's cart
 
-	// Review Routes
-	reviewRoutes := app.Group("/reviews")
+	// 🔐 Review Routes
+	review := protected.Group("/reviews")
+	review.Post("/", reviewHandler.AddReview)
+	review.Get("/:product_id", reviewHandler.GetReviews)
+	review.Put("/:review_id", reviewHandler.UpdateReview)
+	review.Delete("/:review_id", reviewHandler.DeleteReview)
 
-	reviewRoutes.Post("/", reviewHandler.AddReview)
-	reviewRoutes.Get("/:product_id", reviewHandler.GetReviews)
-	reviewRoutes.Put("/:review_id", reviewHandler.UpdateReview)
-	reviewRoutes.Delete("/:review_id", reviewHandler.DeleteReview)
+	// 🔐 Address Routes
+	address := protected.Group("/address")
+	address.Get("/", addressHandler.GetAllAddresses)
+	address.Post("/", addressHandler.CreateAddress)
+	address.Get("/:id", addressHandler.GetAddressByID)
+	address.Put("/:id", addressHandler.UpdateAddress)
+	address.Delete("/:id", addressHandler.DeleteAddress)
+	address.Put("/:id/default", addressHandler.SetDefaultAddress)
+	address.Get("/default", addressHandler.GetDefaultAddress)
 
 	// Order Routes
-	// Not Needed for nowu
+	// Not Needed for now
 	// orderRoutes := app.Group("/orders")
 
 	// orderRoutes.Post("/", orderHandler.PlaceOrder)
