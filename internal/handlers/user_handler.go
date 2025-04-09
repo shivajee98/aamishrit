@@ -1,10 +1,18 @@
 package handlers
 
 import (
+	"errors"
+	"html"
+	"log"
+	"strings"
+
+	"github.com/clerk/clerk-sdk-go/v2/user"
 	"github.com/gofiber/fiber/v2"
+	mw "github.com/shivajee98/aamishrit/internal/middleware"
 	"github.com/shivajee98/aamishrit/internal/model"
 	"github.com/shivajee98/aamishrit/internal/services"
 	"github.com/shivajee98/aamishrit/pkg/utils"
+	"gorm.io/gorm"
 )
 
 type UserHandler struct {
@@ -20,44 +28,72 @@ func InitUserHandler(userService services.UserService) *UserHandler {
 }
 
 // POST /api/user/register
+// RegisterUser handles POST /api/user/register
 func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
-	ClerkID := c.Locals("clerk_id")
-	clerkID, ok := ClerkID.(string)
-	if !ok {
-		return fiber.NewError(fiber.StatusUnauthorized, "Invalid Clerk ID")
+	// Extract Clerk ID from context
+	clerkIDValue := c.Locals(mw.UserIDKey)
+	clerkID, ok := clerkIDValue.(string)
+	if !ok || clerkID == "" {
+		log.Println("RegisterUser: missing or invalid Clerk ID")
+		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
 	}
 
-	userExists, err := h.userService.GetUserByClerkID(clerkID)
-
-	if err == nil && userExists != nil {
+	// Check if user already exists
+	existingUser, err := h.userService.GetUserByClerkID(clerkID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Printf("RegisterUser: error checking user existence: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Internal error")
+	}
+	if existingUser != nil {
 		return fiber.NewError(fiber.StatusConflict, "User already exists")
 	}
 
-	var user model.User
-
-	if err := c.BodyParser(&user); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid body")
+	// Parse request body
+	var userModel model.User
+	if err := c.BodyParser(&userModel); err != nil {
+		log.Printf("RegisterUser: body parse error: %v", err)
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
-	user.ClerkID = clerkID
 
-	userData, err := utils.FetchClerkUser(user.ClerkID)
+	// Input validation
+	userModel.Name = sanitizeString(userModel.Name)
+	if userModel.Name == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Name is required")
+	}
+
+	// Fetch user details from Clerk
+	ctx := c.Context()
+	userDetails, err := user.Get(ctx, clerkID)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user from Clerk")
+		log.Printf("RegisterUser: failed to fetch Clerk user details for %s: %v", clerkID, err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch user details")
 	}
 
-	phone := userData.PhoneNumber
-	if phone != "" {
-		user.Phone = phone
+	// Extract phone number
+	var phoneNumber string
+	if len(userDetails.PhoneNumbers) > 0 {
+		phoneNumber = userDetails.PhoneNumbers[0].PhoneNumber
 	} else {
-		return fiber.NewError(fiber.StatusBadRequest, "Phone number not found in Clerk")
+		log.Printf("RegisterUser: no phone number found for Clerk user: %s", clerkID)
+		return fiber.NewError(fiber.StatusBadRequest, "Phone number is missing from Clerk profile")
 	}
 
-	err = h.userService.RegisterUser(&user)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	userModel.ClerkID = clerkID
+	userModel.Phone = phoneNumber
+
+	// Save user
+	if err := h.userService.RegisterUser(&userModel); err != nil {
+		log.Printf("RegisterUser: DB error while registering user: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to create user")
 	}
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "user created successfully",
+		"message": "User registered successfully",
+		"user": fiber.Map{
+			"id":    userModel.ID,
+			"name":  userModel.Name,
+			"phone": userModel.Phone,
+		},
 	})
 }
 
@@ -136,4 +172,8 @@ func (h *UserHandler) GetClerkUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": userData})
 
+}
+
+func sanitizeString(input string) string {
+	return strings.TrimSpace(html.EscapeString(input))
 }

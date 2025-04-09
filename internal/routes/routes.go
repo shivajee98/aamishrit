@@ -28,7 +28,7 @@ func Setup(app *fiber.App, userHandler *handlers.UserHandler, productHandler *ha
 	// Product Routes
 	product := api.Group("/product")
 	product.Get("/:id", productHandler.GetProductByID)
-	product.Get("/", productHandler.ListProducts)
+	user.Get("/", productHandler.ListProducts)
 	product.Post("/", productHandler.CreateProduct)
 	product.Put("/:id", productHandler.UpdateProduct)
 	product.Delete("/:id", productHandler.DeleteProduct)

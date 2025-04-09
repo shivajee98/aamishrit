@@ -1,16 +1,18 @@
 package middleware
 
 import (
+	"encoding/json"
 	"log"
 	"strings"
 
 	"github.com/clerk/clerk-sdk-go/v2/jwt"
+	"github.com/clerk/clerk-sdk-go/v2/user"
 	"github.com/gofiber/fiber/v2"
 )
 
 type contextKey string
 
-const userIDKey contextKey = "clerk_id"
+const UserIDKey contextKey = "clerk_id"
 
 func ClerkMiddleware(secretKey string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -46,8 +48,12 @@ func ClerkMiddleware(secretKey string) fiber.Handler {
 			})
 		}
 
-		c.Locals(string(userIDKey), claims.Subject)
-
+		ctx := c.Context()
+		userDetails, err := user.Get(ctx, claims.Subject)
+		jsonData, _ := json.Marshal(userDetails)
+		c.Locals(string(UserIDKey), claims.Subject)
+		log.Printf("%s : %s", UserIDKey, string(jsonData))
+		
 		return c.Next()
 	}
 }
