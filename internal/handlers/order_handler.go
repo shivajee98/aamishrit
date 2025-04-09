@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	mw "github.com/shivajee98/aamishrit/internal/middleware"
 	"github.com/shivajee98/aamishrit/internal/model"
 	"github.com/shivajee98/aamishrit/internal/services"
 )
@@ -17,12 +19,20 @@ func NewOrderHandler(orderService services.OrderService) *OrderHandler {
 }
 
 func (h *OrderHandler) PlaceOrder(c *fiber.Ctx) error {
+	// Extract Clerk ID from context
+	clerkIDValue := c.Locals(mw.UserIDKey)
+	clerkID, ok := clerkIDValue.(string)
+	if !ok || clerkID == "" {
+		log.Println("RegisterUser: missing or invalid Clerk ID")
+		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
+	}
+
 	var order model.Order
 	if err := c.BodyParser(&order); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
-	err := h.orderService.PlaceOrder(&order)
+	err := h.orderService.PlaceOrder(clerkID, &order)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

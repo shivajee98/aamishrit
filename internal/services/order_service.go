@@ -2,13 +2,14 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/shivajee98/aamishrit/internal/model"
 	"github.com/shivajee98/aamishrit/internal/repository"
 )
 
 type OrderService interface {
-	PlaceOrder(order *model.Order) error
+	PlaceOrder(clerkID string, order *model.Order) error
 	GetOrder(orderID uint) (*model.Order, error)
 	GetUserOrders(userID uint) ([]model.Order, error)
 	UpdateOrderStatus(orderID uint, status string) error
@@ -16,31 +17,34 @@ type OrderService interface {
 }
 
 type orderService struct {
-	repo repository.OrderRepository
+	orderRepo repository.OrderRepository
+	userRepo  repository.UserRepository
 }
 
-func NewOrderService(repo repository.OrderRepository) OrderService {
-	return &orderService{repo: repo}
+func NewOrderService(orderRepo repository.OrderRepository, userRepo repository.UserRepository) OrderService {
+	return &orderService{
+		orderRepo: orderRepo,
+		userRepo:  userRepo,
+	}
 }
 
-func (s *orderService) PlaceOrder(order *model.Order) error {
-	if order.TotalAmount <= 0 {
-		return errors.New("total amount must be greater than zero")
+func (s *orderService) PlaceOrder(clerkID string, order *model.Order) error {
+	user, err := s.userRepo.GetUserByClerkID(clerkID)
+	if err != nil || user == nil {
+		return fmt.Errorf("user not found for clerkID: %s", clerkID)
 	}
 
-	if len(order.Items) == 0 {
-		return errors.New("order must contain at least one item")
-	}
+	order.UserID = user.ID
 
-	return s.repo.CreateOrder(order)
+	return s.orderRepo.CreateOrder(order)
 }
 
 func (s *orderService) GetOrder(orderID uint) (*model.Order, error) {
-	return s.repo.GetOrder(orderID)
+	return s.orderRepo.GetOrder(orderID)
 }
 
 func (s *orderService) GetUserOrders(userID uint) ([]model.Order, error) {
-	return s.repo.GetOrdersByUser(userID)
+	return s.orderRepo.GetOrdersByUser(userID)
 }
 
 func (s *orderService) UpdateOrderStatus(orderID uint, status string) error {
@@ -55,11 +59,11 @@ func (s *orderService) UpdateOrderStatus(orderID uint, status string) error {
 		return errors.New("invalid order status")
 	}
 
-	return s.repo.UpdateOrderStatus(orderID, status)
+	return s.orderRepo.UpdateOrderStatus(orderID, status)
 }
 
 func (s *orderService) CancelOrder(orderID uint) error {
-	order, err := s.repo.GetOrder(orderID)
+	order, err := s.orderRepo.GetOrder(orderID)
 	if err != nil {
 		return err
 	}
@@ -68,5 +72,5 @@ func (s *orderService) CancelOrder(orderID uint) error {
 		return errors.New("cannot cancel a delivered order")
 	}
 
-	return s.repo.UpdateOrderStatus(orderID, "cancelled")
+	return s.orderRepo.UpdateOrderStatus(orderID, "cancelled")
 }

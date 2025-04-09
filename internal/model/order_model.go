@@ -7,10 +7,7 @@ type Order struct {
 	UserID            uint        `gorm:"index" json:"user_id"`
 	TotalAmount       float64     `json:"total_amount"`
 	Status            string      `gorm:"type:varchar(20);default:'pending'" json:"status"`
-	ShippingAddressID uint        `gorm:"index" json:"shipping_address_id"`
-	BillingAddressID  uint        `gorm:"index" json:"billing_address_id"`
 	ShippingAddress   Address     `gorm:"foreignKey:ShippingAddressID;constraint:OnDelete:SET NULL;" json:"shipping_address"`
-	BillingAddress    Address     `gorm:"foreignKey:BillingAddressID;constraint:OnDelete:SET NULL;" json:"billing_address"`
 	Items             []OrderItem `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE;" json:"items"`
 	Payments          []Payment   `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE;" json:"payments"`
 	CreatedAt         int64       `gorm:"autoCreateTime" json:"created_at"`

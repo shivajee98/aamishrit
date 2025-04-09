@@ -27,7 +27,6 @@ func InitUserHandler(userService services.UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
-// POST /api/user/register
 // RegisterUser handles POST /api/user/register
 func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
 	// Extract Clerk ID from context
