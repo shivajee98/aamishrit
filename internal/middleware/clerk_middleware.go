@@ -53,7 +53,22 @@ func ClerkMiddleware(secretKey string) fiber.Handler {
 		jsonData, _ := json.Marshal(userDetails)
 		c.Locals(string(UserIDKey), claims.Subject)
 		log.Printf("%s : %s", UserIDKey, string(jsonData))
-		
+
+		return c.Next()
+	}
+}
+
+func AdminMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// I will resove the error in next commit
+		user := c.Locals("user").(YourUserModel)
+
+		if user.Role != "admin" {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"error": "Admin access only",
+			})
+		}
+
 		return c.Next()
 	}
 }
