@@ -10,9 +10,10 @@ func SetupAdminRoutes(app *fiber.App, deps AdminDeps) {
 	cfg := config.LoadEnv()
 	clerkKey := cfg.ClerkSecretKey
 
-	admin := app.Group("/admin", middleware.ClerkMiddleware(clerkKey), middleware.AdminMiddleware())
+	admin := app.Group("/admin", middleware.ClerkMiddleware(clerkKey), middleware.ClerkAdminMiddleware(clerkKey))
 
 	products := admin.Group("/products")
+	// products.Get("/", deps.ProductHandler.GetAllProducts) // ← add this line
 	products.Post("/", deps.ProductHandler.CreateProduct)
 	products.Put("/:id", deps.ProductHandler.UpdateProduct)
 	products.Delete("/:id", deps.ProductHandler.DeleteProduct)

@@ -54,5 +54,5 @@ func main() {
 	// Mount only admin routes
 	routes.SetupAdminRoutes(app, deps)
 
-	log.Fatal(app.Listen(":3001")) // different port from customer
+	log.Fatal(app.Listen(":3002")) // different port from customer
 }
