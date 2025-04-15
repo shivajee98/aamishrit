@@ -18,7 +18,7 @@ type categoryRepository struct {
 }
 
 func InitCategoryRepository(db *gorm.DB) CategoryRepository {
-	return &categoryRepository{db}
+	return &categoryRepository{db: db}
 }
 
 func (r *categoryRepository) CreateCategory(category *model.Category) error {
@@ -26,9 +26,9 @@ func (r *categoryRepository) CreateCategory(category *model.Category) error {
 }
 
 func (r *categoryRepository) GetAllCategories() ([]model.Category, error) {
-	var categories []model.Category
-	err := r.db.Find(&categories).Error
-	return categories, err
+	var category []model.Category
+	err := r.db.Find(&category).Error
+	return category, err
 }
 
 func (r *categoryRepository) GetCategoryByID(id uint) (*model.Category, error) {

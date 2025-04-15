@@ -36,6 +36,7 @@ func main() {
 	reviewRepo := repository.InitReviewRepository(dbConn)
 	addressRepo := repository.InitAddressRepository(dbConn)
 	orderRepo := repository.NewOrderRepository(dbConn)
+	categoryRepo := repository.InitCategoryRepository(dbConn)
 
 	userService := services.InitUserService(userRepo)
 	productService := services.InitProductService(productRepo)
@@ -43,6 +44,7 @@ func main() {
 	reviewService := services.InitReviewService(reviewRepo)
 	addressService := services.InitAddressService(addressRepo)
 	orderService := services.NewOrderService(orderRepo, userRepo)
+	categoryService := services.InitCategoryService(categoryRepo)
 
 	deps := routes.Deps{
 		UserHandler:    handlers.InitUserHandler(userService),
@@ -51,6 +53,7 @@ func main() {
 		ReviewHandler:  handlers.InitReviewHandler(reviewService),
 		AddressHandler: handlers.InitAddressHandler(addressService),
 		OrderHandler:   handlers.NewOrderHandler(orderService),
+		CategoryHandler: handlers.InitCategoryHandler(categoryService, cloudinaryUploader),
 	}
 
 	// 🔒 Middlewares

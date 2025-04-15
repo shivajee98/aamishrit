@@ -36,15 +36,18 @@ func main() {
 	productRepo := repository.InitProductRepository(dbConn)
 	userRepo := repository.InitUserRepository(dbConn)
 	orderRepo := repository.NewOrderRepository(dbConn)
+	categoryRepo := repository.InitCategoryRepository(dbConn)
 
 	productService := services.InitProductService(productRepo)
 	userService := services.InitUserService(userRepo)
+	categoryService := services.InitCategoryService(categoryRepo)
 	orderService := services.NewOrderService(orderRepo, userRepo)
 
 	deps := routes.AdminDeps{
-		ProductHandler: handlers.InitProductHandler(productService, cloudinaryUploader),
-		UserHandler:    handlers.InitUserHandler(userService),
-		OrderHandler:   handlers.NewOrderHandler(orderService),
+		ProductHandler:  handlers.InitProductHandler(productService, cloudinaryUploader),
+		UserHandler:     handlers.InitUserHandler(userService),
+		OrderHandler:    handlers.NewOrderHandler(orderService),
+		CategoryHandler: handlers.InitCategoryHandler(categoryService, cloudinaryUploader),
 	}
 
 	app.Use(cors.New(cors.Config{
