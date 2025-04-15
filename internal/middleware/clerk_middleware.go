@@ -48,11 +48,11 @@ func ClerkMiddleware(secretKey string) fiber.Handler {
 			})
 		}
 
-		ctx := c.Context()
-		userDetails, err := user.Get(ctx, claims.Subject)
-		jsonData, _ := json.Marshal(userDetails)
+		// ctx := c.Context()
+		// userDetails, err := user.Get(ctx, claims.Subject)
+		// jsonData, _ := json.Marshal(userDetails.ID)
 		c.Locals(string(UserIDKey), claims.Subject)
-		log.Printf("%s : %s", UserIDKey, string(jsonData))
+		// log.Printf("%s : %s", UserIDKey, string(jsonData))
 
 		return c.Next()
 	}

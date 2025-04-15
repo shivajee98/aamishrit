@@ -7,7 +7,7 @@ import (
 
 type AddressService interface {
 	CreateAddress(address *model.Address) error
-	GetAddressesByUserID(userID uint) ([]model.Address, error)
+	GetAddressesByUserID(clerkID string) ([]model.Address, error)
 	GetAddressByID(addressID uint) (*model.Address, error)
 	UpdateAddress(address *model.Address) error
 	DeleteAddress(addressID uint) error
@@ -27,8 +27,8 @@ func (s *addressService) CreateAddress(address *model.Address) error {
 	return s.repo.CreateAddress(address)
 }
 
-func (s *addressService) GetAddressesByUserID(userID uint) ([]model.Address, error) {
-	return s.repo.GetAddressesByUserID(userID)
+func (s *addressService) GetAddressesByUserID(clerkID string) ([]model.Address, error) {
+	return s.repo.GetAddressesByUserID(clerkID)
 }
 
 func (s *addressService) GetAddressByID(addressID uint) (*model.Address, error) {

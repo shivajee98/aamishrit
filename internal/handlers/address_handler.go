@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/shivajee98/aamishrit/internal/middleware"
+	mw "github.com/shivajee98/aamishrit/internal/middleware"
 	"github.com/shivajee98/aamishrit/internal/model"
 	"github.com/shivajee98/aamishrit/internal/services"
 )
@@ -22,7 +24,7 @@ func (h *AddressHandler) CreateAddress(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid address format")
 	}
 
-	clerkID := c.Locals(middleware.UserIDKey)
+	clerkID := c.Locals(mw.UserIDKey)
 	if clerkID == nil {
 		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
 	}
@@ -39,9 +41,15 @@ func (h *AddressHandler) CreateAddress(c *fiber.Ctx) error {
 
 // GET /api/address
 func (h *AddressHandler) GetAllAddresses(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(uint)
+	// Extract Clerk ID from context
+	clerkIDValue := c.Locals("clerk_id")
+	clerkID, ok := clerkIDValue.(string)
+	if !ok || clerkID == "" {
+		log.Println("RegisterUser: missing or invalid Clerk ID")
+		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
+	}
 
-	addresses, err := h.service.GetAddressesByUserID(userID)
+	addresses, err := h.service.GetAddressesByUserID(clerkID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
