@@ -18,5 +18,10 @@ func SetupAdminRoutes(app *fiber.App, deps AdminDeps) {
 	products.Put("/:id", deps.ProductHandler.UpdateProduct)
 	products.Delete("/:id", deps.ProductHandler.DeleteProduct)
 
+	category := admin.Group("/category")
+	category.Post("/", deps.CategoryHandler.CreateCategory)
+	category.Get("/:id", deps.CategoryHandler.GetCategoryByID)
+	category.Put("/:id", deps.CategoryHandler.UpdateCategory)
+	category.Delete("/:id", deps.CategoryHandler.DeleteCategory)
 	// Future: Add order mgmt, user banning, refund API, etc.
 }

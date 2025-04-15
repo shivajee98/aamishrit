@@ -56,15 +56,26 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Form Data"})
 	}
 
+	categoryNames := c.FormValue("categories") // comma-separated
+	if categoryNames == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "At least one category is required"})
+	}
+	splitNames := utils.SplitAndTrim(categoryNames) // You'll write this helper
+
+	// Fetch categories from DB
+	categories, err := h.productService.GetCategoriesByNames(splitNames)
+	if err != nil || len(categories) != len(splitNames) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "One or more invalid categories"})
+	}
+
 	product := &model.Product{
 		Name:        c.FormValue("name"),
 		Description: c.FormValue("description"),
 		Price:       utils.ParseFloat(c.FormValue("price")),
-		Categories:  c.FormValue("category"),
 		Images:      []string{},
+		Category:    categories,
 	}
 
-	// Upload Images
 	files := form.File["productImages"]
 	if files == nil || len(files) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No product images provided"})
@@ -85,14 +96,12 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 		product.Images = append(product.Images, imageURL)
 	}
 
-	// Save the product
 	if err := h.productService.CreateProduct(product); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create product"})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(product)
 }
-
 
 func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
@@ -124,9 +133,16 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 	if priceStr != "" {
 		existingProduct.Price = utils.ParseFloat(priceStr)
 	}
-	category := c.FormValue("category")
-	if category != "" {
-		existingProduct.Categories = category
+	categoryStr := c.FormValue("category")
+	if categoryStr != "" {
+		splitNames := utils.SplitAndTrim(categoryStr)
+
+		categories, err := h.productService.GetCategoriesByNames(splitNames)
+		if err != nil || len(categories) != len(splitNames) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "One or more invalid categories"})
+		}
+
+		existingProduct.Category = categories
 	}
 
 	// Handle optional image update

@@ -11,6 +11,7 @@ type ProductService interface {
 	CreateProduct(product *model.Product) error
 	UpdateProduct(product *model.Product) error
 	DeleteProduct(id uint) error
+	GetCategoriesByNames(name []string) ([]*model.Category, error)
 }
 
 type productService struct {
@@ -41,4 +42,8 @@ func (s *productService) UpdateProduct(product *model.Product) error {
 
 func (s *productService) DeleteProduct(id uint) error {
 	return s.productRepo.DeleteProduct(id)
+}
+
+func (s *productService) GetCategoriesByNames(names []string) ([]*model.Category, error) {
+	return s.productRepo.GetCategoriesByNames(names)
 }

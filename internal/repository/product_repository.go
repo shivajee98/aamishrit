@@ -12,6 +12,7 @@ type ProductRepository interface {
 	CreateProduct(product *model.Product) error
 	UpdateProduct(product *model.Product) error
 	DeleteProduct(id uint) error
+	GetCategoriesByNames(names []string) ([]*model.Category, error) // <-- add this
 }
 
 type productRepository struct {
@@ -49,4 +50,10 @@ func (r *productRepository) UpdateProduct(product *model.Product) error {
 
 func (r *productRepository) DeleteProduct(id uint) error {
 	return r.db.Delete(&model.Product{}, id).Error
+}
+
+func (r *productRepository) GetCategoriesByNames(names []string) ([]*model.Category, error) {
+	var categories []*model.Category
+	err := r.db.Where("name IN ?", names).Find(&categories).Error
+	return categories, err
 }
