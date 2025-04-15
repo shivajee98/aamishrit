@@ -40,6 +40,7 @@ func ClerkMiddleware(secretKey string) fiber.Handler {
 		claims, err := jwt.Verify(c.Context(), &jwt.VerifyParams{
 			Token: token,
 		})
+		log.Printf("[AUTH] Token verified. ClerkID: %s", claims.Subject)
 		if err != nil {
 			log.Printf("JWT verification failed: %v", err)
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
