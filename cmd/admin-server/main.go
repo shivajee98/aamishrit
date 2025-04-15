@@ -18,7 +18,9 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 50 * 1024 * 1024,
+	})
 	cfg := config.LoadEnv()
 
 	utils.CheckError("Loading Config Failed", nil)

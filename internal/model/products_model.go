@@ -14,7 +14,8 @@ type Product struct {
 	Description string         `json:"description"`
 	Images      pq.StringArray `json:"images" gorm:"type:text[]"` // FIXED HERE
 	Stock       int            `gorm:"not null" json:"stock"`
-	Categories  string         `gorm:"not null" json:"category"`
+	CategoryID  uint           `json:"category_id"`
+	Category    Category       `gorm:"foreignKey:CategoryID" json:"category"`
 	Reviews     []Review       `gorm:"foreignKey:ProductID;constraint:OnDelete:CASCADE;"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time

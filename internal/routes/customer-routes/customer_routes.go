@@ -62,4 +62,12 @@ func SetupCustomerRoutes(app *fiber.App, deps Deps) {
 	orderRoutes.Get("/user/:user_id", deps.OrderHandler.GetUserOrders)
 	orderRoutes.Put("/:order_id", deps.OrderHandler.UpdateOrderStatus)
 	orderRoutes.Delete("/:order_id", deps.OrderHandler.CancelOrder)
+
+	// category
+	category := protected.Group("/categories")
+	category.Post("/", deps.CategoryHandler.CreateCategory)
+	category.Get("/", deps.CategoryHandler.GetCategories)
+	category.Get("/:id", deps.CategoryHandler.GetCategoryByID)
+	category.Put("/:id", deps.CategoryHandler.UpdateCategory)
+	category.Delete("/:id", deps.CategoryHandler.DeleteCategory)
 }
