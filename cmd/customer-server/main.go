@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/gofiber/fiber/v2"
@@ -47,24 +48,31 @@ func main() {
 	categoryService := services.InitCategoryService(categoryRepo)
 
 	deps := routes.Deps{
-		UserHandler:    handlers.InitUserHandler(userService),
-		ProductHandler: handlers.InitProductHandler(productService, cloudinaryUploader),
-		CartHandler:    handlers.InitCartHandler(cartService),
-		ReviewHandler:  handlers.InitReviewHandler(reviewService),
-		AddressHandler: handlers.InitAddressHandler(addressService, userService),
-		OrderHandler:   handlers.NewOrderHandler(orderService),
+		UserHandler:     handlers.InitUserHandler(userService),
+		ProductHandler:  handlers.InitProductHandler(productService, cloudinaryUploader),
+		CartHandler:     handlers.InitCartHandler(cartService),
+		ReviewHandler:   handlers.InitReviewHandler(reviewService),
+		AddressHandler:  handlers.InitAddressHandler(addressService, userService),
+		OrderHandler:    handlers.NewOrderHandler(orderService),
 		CategoryHandler: handlers.InitCategoryHandler(categoryService, cloudinaryUploader),
 	}
 
 	// 🔒 Middlewares
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowMethods: "GET,POST,PUT,DELETE",
-		AllowHeaders: "Content-Type,Authorization",
+		AllowOrigins:     " https://www.aamishrit.com, https://aamishrit.zapto.org, http://localhost:3001, http://localhost:3002, http://localhost:3000",
+		AllowMethods:     "GET,POST,PUT,DELETE",
+		AllowHeaders:     "Content-Type,Authorization",
+		AllowCredentials: true,
 	}))
 
 	// 🔀 Setup Routes
 	routes.SetupCustomerRoutes(app, deps)
 
-	log.Fatal(app.Listen(":3000"))
+	port := os.Getenv("CPORT")
+	if port == "" {
+		port = "3000" // or "3002" for admin
+	}
+	log.Fatal(app.Listen(":" + port))
 }
+
+// https://www.aamishrit.com, https://aamishrit.zapto.org, http://localhost:3001, http://localhost:3002

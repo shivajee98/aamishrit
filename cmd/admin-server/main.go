@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/gofiber/fiber/v2"
@@ -11,7 +12,7 @@ import (
 	"github.com/shivajee98/aamishrit/internal/db"
 	"github.com/shivajee98/aamishrit/internal/handlers"
 	"github.com/shivajee98/aamishrit/internal/repository"
-	"github.com/shivajee98/aamishrit/internal/routes/admin-routes"
+	routes "github.com/shivajee98/aamishrit/internal/routes/admin-routes"
 	"github.com/shivajee98/aamishrit/internal/services"
 	"github.com/shivajee98/aamishrit/internal/uploader"
 	"github.com/shivajee98/aamishrit/pkg/utils"
@@ -59,5 +60,9 @@ func main() {
 	// Mount only admin routes
 	routes.SetupAdminRoutes(app, deps)
 
-	log.Fatal(app.Listen(":3002")) // different port from customer
+	port := os.Getenv("APORT")
+	if port == "" {
+		port = "3002" // or "3002"
+	}
+	log.Fatal(app.Listen(":" + port))
 }

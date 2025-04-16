@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  customer:
+    build:
+      context: .
+      dockerfile: Dockerfile.customer
+    env_file:
+      - .env  # This is optional if you want to mount .env separately
+    ports:
+      - "3001:3000"
+    restart: always
+    networks:
+      - aamishrit_default
+
+  # admin:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.admin
+  #   env_file:
+  #     - .env  # Optional for admin if needed
+  #   ports:
+  #     - "3002:3000"
+  #   restart: always
+  #   networks:
+  #     - aamishrit_default
+
+networks:
+  aamishrit_default:
+    external: true

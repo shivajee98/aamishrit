@@ -1,0 +1,39 @@
+# Stage 1: Build the Go application
+FROM golang:1.24.2-alpine3.21 AS build
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the Go modules manifests
+COPY go.mod ./
+COPY go.sum ./
+
+# Download Go modules
+RUN go mod download
+
+# Copy the source code into the container
+COPY . .
+
+# Build the Go app
+RUN go build -o bin/customer-server ./cmd/customer-server
+
+# Stage 2: Create the final image
+FROM alpine:latest
+
+# Set the Current Working Directory inside the container
+WORKDIR /root/
+
+# Install dependencies for running Go binary
+RUN apk --no-cache add ca-certificates
+
+# Copy the pre-built binary file from the build stage
+COPY --from=build /app/bin/customer-server .
+
+# Copy the .env file into the container
+COPY .env .env
+
+# Expose port 3000 to the outside world
+EXPOSE 3000
+
+# Command to run the binary
+CMD ["./customer-server"]
