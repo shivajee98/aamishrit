@@ -24,6 +24,8 @@ func SetupCustomerRoutes(app *fiber.App, deps Deps) {
 	// User
 	user := protected.Group("/user")
 	user.Put("/", deps.UserHandler.UpdateUser)
+	user.Get("/check", deps.UserHandler.CheckUserByClerkId)
+	user.Post("/register", deps.UserHandler.RegisterUser)
 
 	// Product (Admin/Seller maybe later)
 	product := protected.Group("/products")

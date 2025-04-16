@@ -27,10 +27,40 @@ func InitUserHandler(userService services.UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
+// check user by clerk Id
+
+func (h *UserHandler) CheckUserByClerkId(c *fiber.Ctx) error {
+	// Extract Clerk ID from context
+	clerkIDValue := c.Locals("clerk_id")
+	clerkID, ok := clerkIDValue.(string)
+	if !ok || clerkID == "" {
+		log.Println("RegisterUser: missing or invalid Clerk ID")
+		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
+	}
+
+	// Check if user already exists
+	existingUser, err := h.userService.GetUserByClerkID(clerkID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Printf("RegisterUser: error checking user existence: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Internal error")
+	}
+
+	if existingUser != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"exists": true,
+		})
+	}
+
+	// If not found, return exists: false
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"exists": false,
+	})
+}
+
 // RegisterUser handles POST /api/user/register
 func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
 	// Extract Clerk ID from context
-	clerkIDValue := c.Locals(mw.UserIDKey)
+	clerkIDValue := c.Locals("clerk_id")
 	clerkID, ok := clerkIDValue.(string)
 	if !ok || clerkID == "" {
 		log.Println("RegisterUser: missing or invalid Clerk ID")

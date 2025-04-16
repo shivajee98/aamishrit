@@ -39,7 +39,7 @@ func (r *userRepository) UpdateUser(user *model.User) error {
 
 func (r *userRepository) GetUserByClerkID(clerkID string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("clerkID = ?", clerkID).First(&user).Error
+	err := r.db.Where("clerk_id = ?", clerkID).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

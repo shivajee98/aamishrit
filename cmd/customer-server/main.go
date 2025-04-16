@@ -51,7 +51,7 @@ func main() {
 		ProductHandler: handlers.InitProductHandler(productService, cloudinaryUploader),
 		CartHandler:    handlers.InitCartHandler(cartService),
 		ReviewHandler:  handlers.InitReviewHandler(reviewService),
-		AddressHandler: handlers.InitAddressHandler(addressService),
+		AddressHandler: handlers.InitAddressHandler(addressService, userService),
 		OrderHandler:   handlers.NewOrderHandler(orderService),
 		CategoryHandler: handlers.InitCategoryHandler(categoryService, cloudinaryUploader),
 	}

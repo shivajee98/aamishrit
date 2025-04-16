@@ -1,20 +1,22 @@
 package handlers
 
 import (
+	"errors"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	mw "github.com/shivajee98/aamishrit/internal/middleware"
 	"github.com/shivajee98/aamishrit/internal/model"
 	"github.com/shivajee98/aamishrit/internal/services"
+	"gorm.io/gorm"
 )
 
 type AddressHandler struct {
-	service services.AddressService
+	service     services.AddressService
+	userService services.UserService
 }
 
-func InitAddressHandler(s services.AddressService) *AddressHandler {
-	return &AddressHandler{service: s}
+func InitAddressHandler(s services.AddressService, u services.UserService) *AddressHandler {
+	return &AddressHandler{service: s, userService: u}
 }
 
 // POST /api/address
@@ -24,12 +26,22 @@ func (h *AddressHandler) CreateAddress(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid address format")
 	}
 
-	clerkID := c.Locals(mw.UserIDKey)
-	if clerkID == nil {
+	// Extract Clerk ID from context
+	clerkIDValue := c.Locals("clerk_id")
+	clerkID, ok := clerkIDValue.(string)
+	if !ok || clerkID == "" {
+		log.Println("RegisterUser: missing or invalid Clerk ID")
 		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
 	}
 
-	userID := c.Locals("user_id").(uint)
+	// Get the userId by clerk Id
+	user, err := h.userService.GetUserByClerkID(clerkID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Printf("RegisterUser: error checking user existence: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Internal error")
+	}
+
+	userID := user.ID
 	address.UserID = userID
 
 	if err := h.service.CreateAddress(&address); err != nil {
