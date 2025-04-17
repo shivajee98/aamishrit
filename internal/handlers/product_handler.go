@@ -77,7 +77,7 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	files := form.File["productImages"]
-	if files == nil || len(files) == 0 {
+	if len(files) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No product images provided"})
 	}
 
@@ -147,7 +147,7 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 
 	// Handle optional image update
 	files := form.File["productImages"]
-	if files != nil && len(files) > 0 {
+	if len(files) == 0 {
 		// clear old images if required, or append (your business logic)
 		existingProduct.Images = []string{} // or append to existing
 

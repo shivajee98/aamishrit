@@ -20,7 +20,7 @@ func main() {
 	}
 
 	// Drop the tables if they exist
-	// err = dbConn.Migrator().DropTable(&model.User{}, &model.Product{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.OrderItem{}, &model.Product{}, &model.Review{}, &model.Wishlist{})
+	// err = dbConn.Migrator().DropTable(&model.User{}, &model.Product{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.OrderItem{}, &model.Product{}, &model.Review{}, &model.Wishlist{}, &model.Category{})
 	// if err != nil {
 	// 	log.Fatalf("Failed to drop tables: %v", err)
 	// }

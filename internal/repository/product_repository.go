@@ -36,7 +36,7 @@ func (r *productRepository) GetProductByID(id uint) (*model.Product, error) {
 
 func (r *productRepository) ListProducts(offset, limit int) ([]model.Product, error) {
 	var products []model.Product
-	err := r.db.Offset(offset).Limit(limit).Find(&products).Error
+	err := r.db.Preload("Category").Offset(offset).Limit(limit).Find(&products).Error
 	return products, err
 }
 
