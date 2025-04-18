@@ -33,7 +33,7 @@ func (r *categoryRepository) GetAllCategories() ([]model.Category, error) {
 
 func (r *categoryRepository) GetCategoryByID(id uint) (*model.Category, error) {
 	var category model.Category
-	err := r.db.First(&category, id).Error
+	err := r.db.Preload("Products").First(&category, id).Error
 	return &category, err
 }
 

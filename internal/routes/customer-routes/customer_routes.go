@@ -68,4 +68,5 @@ func SetupCustomerRoutes(app *fiber.App, deps Deps) {
 	// category
 	category := app.Group("/categories")
 	category.Get("/", deps.CategoryHandler.GetCategories)
+	category.Get("/:id", deps.CategoryHandler.GetCategoryByID)
 }

@@ -19,13 +19,18 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	// Drop the tables if they exist
-	// err = dbConn.Migrator().DropTable(&model.User{}, &model.Product{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.OrderItem{}, &model.Product{}, &model.Review{}, &model.Wishlist{}, &model.Category{})
+	// err = dbConn.Exec("TRUNCATE TABLE product_categories RESTART IDENTITY CASCADE").Error
+	// if err != nil {
+	// 	log.Fatalf("Failed to truncate product_categories: %v", err)
+	// }
+
+	// // Drop the tables if they exist
+	// err = dbConn.Migrator().DropTable(&model.User{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.OrderItem{}, &model.Product{}, &model.Review{}, &model.Wishlist{}, &model.Category{})
 	// if err != nil {
 	// 	log.Fatalf("Failed to drop tables: %v", err)
 	// }
 
-	err = dbConn.AutoMigrate(&model.User{}, &model.Product{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.OrderItem{}, &model.Product{}, &model.Review{}, &model.Wishlist{})
+	err = dbConn.AutoMigrate(&model.User{}, &model.Product{}, &model.Address{}, &model.Cart{}, &model.Order{}, &model.OrderItem{}, &model.Review{}, &model.Wishlist{})
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}
