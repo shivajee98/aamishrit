@@ -27,7 +27,7 @@ func (r *categoryRepository) CreateCategory(category *model.Category) error {
 
 func (r *categoryRepository) GetAllCategories() ([]model.Category, error) {
 	var category []model.Category
-	err := r.db.Find(&category).Error
+	err := r.db.Preload("Products").Find(&category).Error
 	return category, err
 }
 
