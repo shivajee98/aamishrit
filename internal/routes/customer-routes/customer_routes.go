@@ -58,7 +58,7 @@ func SetupCustomerRoutes(app *fiber.App, deps Deps) {
 	address.Get("/default", deps.AddressHandler.GetDefaultAddress)
 
 	// Orders
-	orderRoutes := app.Group("/orders")
+	orderRoutes := api.Group("/orders")
 	orderRoutes.Post("/", deps.OrderHandler.PlaceOrder)
 	orderRoutes.Get("/:order_id", deps.OrderHandler.GetOrder)
 	orderRoutes.Get("/user/:user_id", deps.OrderHandler.GetUserOrders)
@@ -66,7 +66,7 @@ func SetupCustomerRoutes(app *fiber.App, deps Deps) {
 	orderRoutes.Delete("/:order_id", deps.OrderHandler.CancelOrder)
 
 	// category
-	category := app.Group("/categories")
+	category := api.Group("/categories")
 	category.Get("/", deps.CategoryHandler.GetCategories)
 	category.Get("/:id", deps.CategoryHandler.GetCategoryByID)
 }
