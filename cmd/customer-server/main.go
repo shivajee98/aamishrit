@@ -59,7 +59,7 @@ func main() {
 
 	// 🔒 Middlewares
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     " https://www.aamishrit.com, https://aamishrit.zapto.org, http://localhost:3001, http://localhost:3002, http://localhost:3000",
+		AllowOrigins:     " https://www.aamishrit.com, https://aamishrit.zapto.org, http://localhost:3001, http://localhost:3002, http://localhost:3000, https://aamishrit-web-template-phi.vercel.app"
 		AllowMethods:     "GET,POST,PUT,DELETE",
 		AllowHeaders:     "Content-Type,Authorization",
 		AllowCredentials: true,
