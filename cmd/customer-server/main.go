@@ -58,12 +58,23 @@ func main() {
 	}
 
 	// 🔒 Middlewares
-	app.Use(cors.New(cors.Config{
-        AllowOrigins:     "https://www.aamishrit.com,https://aamishrit.zapto.org,http://localhost:3001,http://localhost:3002,http://localhost:3000, https://aamishrit-six.vercel.app",
-        AllowMethods:     "GET,POST,PUT,DELETE",
-        AllowHeaders:     "Content-Type,Authorization",
-        AllowCredentials: true,
+app.Use(cors.New(cors.Config{
+    AllowCredentials: true,
+    AllowMethods:     "GET,POST,PUT,DELETE",
+    AllowHeaders:     "Content-Type,Authorization",
+    AllowOriginsFunc: func(origin string) bool {
+        allowed := map[string]bool{
+            "https://www.aamishrit.com":        true,
+            "https://aamishrit.zapto.org":      true,
+            "http://localhost:3000":            true,
+            "http://localhost:3001":            true,
+            "http://localhost:3002":            true,
+            "https://aamishrit-six.vercel.app": true,
+        }
+        return allowed[origin]
+    },
 }))
+
 
 
 	// 🔀 Setup Routes
